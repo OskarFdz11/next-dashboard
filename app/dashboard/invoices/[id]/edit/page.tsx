@@ -1,11 +1,12 @@
 import Form from "@/app/ui/invoices/edit-form";
 import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
-import { fetchQuotationById, fetchCustomers } from "@/app/lib/data";
+import { fetchQuotationById } from "@/app/lib/data";
+import { fetchCustomers } from "@/app/lib/customer-actions/customer-data";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Edit Quotation",
+  title: "Edit Invoice",
 };
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {

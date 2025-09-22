@@ -88,6 +88,12 @@ export type CustomerField = {
   name: string;
 };
 
+export type CategoryField = {
+  id: string | number;
+  name: string;
+  description: string;
+};
+
 export type QuotationForm = {
   id: string | number;
   customerId: string | number;

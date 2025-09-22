@@ -1,18 +1,18 @@
-import Form from "@/app/ui/customers/edit-form";
+import Form from "@/app/ui/categories/edit-form";
 import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
-import { fetchCustomerById } from "@/app/lib/customer-actions/customer-data";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { fetchCategoryById } from "@/app/lib/categories-actions/categories-data";
 
 export const metadata: Metadata = {
-  title: "Edit Customer",
+  title: "Edit Category",
 };
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const id = params.id;
-  const [customer] = await Promise.all([fetchCustomerById(id)]);
-  if (!customer) {
+  const [category] = await Promise.all([fetchCategoryById(id)]);
+  if (!category) {
     notFound();
   }
 
@@ -20,15 +20,15 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: "Customers", href: "/dashboard/customers" },
+          { label: "Categories", href: "/dashboard/categories" },
           {
-            label: "Edit Customer",
-            href: `/dashboard/customers/${id}/edit`,
+            label: "Edit Category",
+            href: `/dashboard/categories/${id}/edit`,
             active: true,
           },
         ]}
       />
-      <Form customer={customer} />
+      <Form category={category} />
     </main>
   );
 }

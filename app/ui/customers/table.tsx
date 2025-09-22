@@ -1,5 +1,5 @@
 import { UpdateCustomer, DeleteCustomer } from "@/app/ui/customers/buttons";
-import { fetchFilteredCustomers } from "@/app/lib/data";
+import { fetchFilteredCustomers } from "@/app/lib/customer-actions/customer-data";
 
 export default async function CustomersTable({
   query,
