@@ -1,23 +1,32 @@
 import Form from "@/app/ui/invoices/edit-form";
 import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
-import { fetchInvoiceById, fetchCustomers } from "@/app/lib/data";
+import { fetchQuotationById, fetchCustomers } from "@/app/lib/data";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Edit Invoice",
+  title: "Edit Quotation",
 };
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const id = params.id;
-  const [invoice, customers] = await Promise.all([
-    fetchInvoiceById(id),
+  const [quotation, customers] = await Promise.all([
+    fetchQuotationById(id),
     fetchCustomers(),
   ]);
-  if (!invoice) {
+  if (!quotation) {
     notFound();
   }
+
+  const quotationForForm = {
+    ...quotation,
+    subtotal:
+      typeof quotation.subtotal === "object" && "toNumber" in quotation.subtotal
+        ? quotation.subtotal.toNumber()
+        : Number(quotation.subtotal),
+    status: quotation.status as "pending" | "paid",
+  };
   return (
     <main>
       <Breadcrumbs
@@ -30,7 +39,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           },
         ]}
       />
-      <Form invoice={invoice} customers={customers} />
+      <Form quotation={quotationForForm} customers={customers} />
     </main>
   );
 }

@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id    String @id @default(uuid())
+  name  String
+  email String @unique
+  password String
+}
+
+model Customer {
+  id        Int        @id @default(autoincrement())
+  name      String
+  lastname  String
+  email     String
+  company   String
+  rfc       String
+  phone     BigInt
+  quotations Quotation[]
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  products    Product[]
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  categoryId  Int
+  image_url   String
+  description String
+  quantity    Int
+  price       Decimal
+  brand       String
+  category    Category  @relation(fields: [categoryId], references: [id])
+  quotationProducts QuotationProduct[]
+}
+
+model Address {
+  id            Int    @id @default(autoincrement())
+  street        String
+  outsideNumber String
+  colony        String
+  city          String
+  cp            String
+  billingDetails BillingDetails[]
+}
+
+model BillingDetails {
+  id         Int      @id @default(autoincrement())
+  company    String
+  name       String
+  lastname   String
+  rfc        String
+  clabe      String
+  checkAccount String
+  addressId  Int
+  phone      BigInt
+  email      String
+  address    Address  @relation(fields: [addressId], references: [id])
+  quotations Quotation[]
+}
+
+model Quotation {
+  id               Int       @id @default(autoincrement())
+  date             DateTime
+  customerId       Int
+  billingDetailsId Int
+  iva              Boolean
+  subtotal         Decimal
+  total            Decimal
+  notes            String
+  status           String
+  customer         Customer  @relation(fields: [customerId], references: [id])
+  billingDetails   BillingDetails @relation(fields: [billingDetailsId], references: [id])
+  products         QuotationProduct[]
+}
+
+model QuotationProduct {
+  quotationId Int
+  productId   Int
+  quantity    Int
+  price       Decimal
+
+  quotation   Quotation @relation(fields: [quotationId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
+
+  @@id([quotationId, productId])
+}

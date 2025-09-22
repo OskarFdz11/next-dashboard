@@ -5,12 +5,15 @@ import { z } from "zod";
 import type { User } from "@/app/lib/definitions";
 import bcrypt from "bcrypt";
 import postgres from "postgres";
-
+import { prisma } from "./app/lib/prisma";
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
 async function getUser(email: string): Promise<User | undefined> {
   try {
-    const user = await sql<User[]>`SELECT * FROM users WHERE email=${email}`;
+    const user = await prisma.user.findMany({
+      where: { email },
+    });
+    if (user.length === 0) return undefined;
     return user[0];
   } catch (error) {
     console.error("Failed to fetch user:", error);
