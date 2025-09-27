@@ -11,7 +11,7 @@ export type ProductFormState = {
     name?: string[];
     description?: string[];
     price?: string[];
-    image_url?: string[];
+    imageUrl?: string[];
     quantity?: string[];
     brand?: string[];
     category?: string[];
@@ -21,9 +21,13 @@ export type ProductFormState = {
 const CreateProduct = z.object({
   name: z.string().min(1, "Name is required."),
   description: z.string().min(1, "Description is required."),
-  price: z.number().min(0, "Price must be a positive number."),
-  image_url: z.string().min(1, "Image URL is required."),
-  quantity: z.number().min(0, "Quantity must be a positive number."),
+  price: z.coerce
+    .number({ invalid_type_error: "Price must be a number" })
+    .nonnegative("Price must be >= 0"),
+  imageUrl: z.string().min(1, "Image URL is required."),
+  quantity: z.coerce
+    .number({ invalid_type_error: "Quantity must be a number" })
+    .min(0, "Quantity must be >= 0"),
   brand: z.string().min(1, "Brand is required."),
   category: z.string().min(1, "Category is required."),
 });
@@ -31,9 +35,9 @@ const CreateProduct = z.object({
 const UpdateProduct = z.object({
   name: z.string().min(1, "Name is required."),
   description: z.string().min(1, "Description is required."),
-  price: z.number().min(0, "Price must be a positive number."),
-  image_url: z.string().min(1, "Image URL is required."),
-  quantity: z.number().min(0, "Quantity must be a positive number."),
+  price: z.coerce.number().min(0, "Price must be a positive number."),
+  imageUrl: z.string().min(1, "Image URL is required."),
+  quantity: z.coerce.number().min(0, "Quantity must be a positive number."),
   brand: z.string().min(1, "Brand is required."),
   category: z.string().min(1, "Please select a category."),
 });
@@ -46,7 +50,7 @@ export const createProduct = async (
     name: formData.get("name"),
     description: formData.get("description"),
     price: formData.get("price"),
-    image_url: formData.get("image_url"),
+    imageUrl: formData.get("imageUrl"),
     quantity: formData.get("quantity"),
     brand: formData.get("brand"),
     category: formData.get("category"),
@@ -59,7 +63,7 @@ export const createProduct = async (
     };
   }
 
-  const { name, description, price, image_url, quantity, brand, category } =
+  const { name, description, price, imageUrl, quantity, brand, category } =
     validatedFields.data;
 
   try {
@@ -67,9 +71,9 @@ export const createProduct = async (
       data: {
         name,
         description,
-        price,
-        image_url,
-        quantity,
+        price: Number(price),
+        image_url: imageUrl,
+        quantity: Number(quantity),
         brand,
         categoryId: Number(category),
       },
@@ -94,7 +98,7 @@ export const updateProduct = async (
     name: formData.get("name"),
     description: formData.get("description"),
     price: formData.get("price"),
-    image_url: formData.get("image_url"),
+    imageUrl: formData.get("imageUrl"),
     quantity: formData.get("quantity"),
     brand: formData.get("brand"),
     category: formData.get("category"),
@@ -107,7 +111,7 @@ export const updateProduct = async (
     };
   }
 
-  const { name, description, price, image_url, quantity, brand, category } =
+  const { name, description, price, imageUrl, quantity, brand, category } =
     validatedFields.data;
 
   try {
@@ -116,9 +120,9 @@ export const updateProduct = async (
       data: {
         name,
         description,
-        price,
-        image_url,
-        quantity,
+        price: Number(price),
+        image_url: imageUrl,
+        quantity: Number(quantity),
         brand,
         categoryId: Number(category),
       },

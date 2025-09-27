@@ -91,7 +91,26 @@ export type CustomerField = {
 export type CategoryField = {
   id: string | number;
   name: string;
+  description?: string;
+};
+
+export type ProductField = {
+  id: string | number;
+  name: string;
   description: string;
+  price: number;
+  image_url: string;
+  quantity: number;
+  brand: string;
+  category: CategoryField;
+  quotationProducts?: QuotationProductField[];
+};
+export type QuotationProductField = {
+  quotationId: string | number;
+  productId: string | number;
+  quantity: number;
+  price: number;
+  product: ProductField;
 };
 
 export type QuotationForm = {

@@ -7,6 +7,10 @@ export const formatCurrency = (amount: number) => {
   });
 };
 
+export const truncate = (text: string, max: number) => {
+  return text.length > max ? text.slice(0, max) + "..." : text;
+};
+
 export const formatDateToLocal = (
   dateStr: string,
   locale: string = "en-US"

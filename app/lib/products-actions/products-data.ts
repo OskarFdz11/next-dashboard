@@ -11,11 +11,17 @@ export async function fetchProducts() {
         image_url: true,
         quantity: true,
         brand: true,
-        category: { select: { name: true } },
+        category: { select: { name: true, id: true } },
       },
       orderBy: { name: "asc" },
     });
-    return products;
+    return products.map((product) => ({
+      ...product,
+      price:
+        typeof product.price === "object" && "toNumber" in product.price
+          ? product.price.toNumber()
+          : Number(product.price),
+    }));
   } catch (err) {
     console.error("Database Error:", err);
     throw new Error("Failed to fetch all products.");
@@ -26,10 +32,24 @@ export async function fetchProductById(id: string) {
   try {
     const product = await prisma.product.findUnique({
       where: { id: Number(id) },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        image_url: true,
+        quantity: true,
+        brand: true,
+        category: { select: { name: true, id: true } },
+      },
     });
     if (!product) return null;
     return {
       ...product,
+      price:
+        typeof product.price === "object" && "toNumber" in product.price
+          ? product.price.toNumber()
+          : Number(product.price),
     };
   } catch (error) {
     console.error("Database Error:", error);
