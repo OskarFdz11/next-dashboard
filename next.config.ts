@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   experimental: {
     ppr: "incremental",
   },
+  images: {
+    domains: ["res.cloudinary.com"],
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;

@@ -10,7 +10,16 @@ import { fetchRevenue } from "@/app/lib/data";
 // https://airbnb.io/visx/
 
 export default async function RevenueChart() {
-  const revenue = await fetchRevenue();
+  const revenueRaw = await fetchRevenue();
+
+  // Convert Decimal fields to number for compatibility with Revenue[]
+  const revenue = revenueRaw.map((item) => ({
+    ...item,
+    subtotal:
+      typeof item.subtotal === "number" ? item.subtotal : Number(item.subtotal),
+    total: typeof item.total === "number" ? item.total : Number(item.total),
+    status: item.status === "paid" ? "paid" : ("pending" as "paid" | "pending"),
+  }));
 
   const chartHeight = 350;
   // NOTE: Uncomment this code in Chapter 7
@@ -40,15 +49,15 @@ export default async function RevenueChart() {
           </div>
 
           {revenue.map((month) => (
-            <div key={month.month} className="flex flex-col items-center gap-2">
+            <div key={month.id} className="flex flex-col items-center gap-2">
               <div
                 className="w-full rounded-md bg-blue-300"
                 style={{
-                  height: `${(chartHeight / topLabel) * month.revenue}px`,
+                  height: `${(chartHeight / topLabel) * month.total}px`,
                 }}
               ></div>
               <p className="-rotate-90 text-sm text-gray-400 sm:rotate-0">
-                {month.month}
+                {month.total}
               </p>
             </div>
           ))}

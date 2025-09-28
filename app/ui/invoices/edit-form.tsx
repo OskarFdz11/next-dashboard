@@ -1,6 +1,6 @@
 "use client";
 
-import { CustomerField, InvoiceForm } from "@/app/lib/definitions";
+import { CustomerField, QuotationForm } from "@/app/lib/definitions";
 import {
   CheckIcon,
   ClockIcon,
@@ -9,19 +9,22 @@ import {
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
-import { State, updateInvoice } from "@/app/lib/actions";
+import { State, updateQuotation } from "@/app/lib/actions";
 import { useActionState } from "react";
 
 export default function EditInvoiceForm({
-  invoice,
+  quotation,
   customers,
 }: {
-  invoice: InvoiceForm;
+  quotation: QuotationForm;
   customers: CustomerField[];
 }) {
   const initialState: State = { message: null, errors: {} };
-  const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
-  const [state, formAction] = useActionState(updateInvoiceWithId, initialState);
+  const updateQuotationWithId = updateQuotation.bind(null, quotation.id);
+  const [state, formAction] = useActionState(
+    updateQuotationWithId,
+    initialState
+  );
   return (
     <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
@@ -35,7 +38,7 @@ export default function EditInvoiceForm({
               id="customer"
               name="customerId"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue={invoice.customer_id}
+              defaultValue={quotation.customerId}
             >
               <option value="" disabled>
                 Select a customer
@@ -58,7 +61,7 @@ export default function EditInvoiceForm({
           </div>
         </div>
 
-        {/* Invoice Amount */}
+        {/* Quotation Amount */}
         <div className="mb-4">
           <label htmlFor="amount" className="mb-2 block text-sm font-medium">
             Choose an amount
@@ -70,7 +73,7 @@ export default function EditInvoiceForm({
                 name="amount"
                 type="number"
                 step="0.01"
-                defaultValue={invoice.amount}
+                defaultValue={quotation.total}
                 placeholder="Enter USD amount"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               />
@@ -78,8 +81,8 @@ export default function EditInvoiceForm({
             </div>
           </div>
           <div id="amount-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.amount &&
-              state.errors.amount.map((error: string) => (
+            {state.errors?.total &&
+              state.errors.total.map((error: string) => (
                 <p className="mt-2 text-sm text-red-500" key={error}>
                   {error}
                 </p>
@@ -90,7 +93,7 @@ export default function EditInvoiceForm({
         {/* Invoice Status */}
         <fieldset>
           <legend className="mb-2 block text-sm font-medium">
-            Set the invoice status
+            Set the quotation status
           </legend>
           <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
             <div className="flex gap-4">
@@ -100,7 +103,7 @@ export default function EditInvoiceForm({
                   name="status"
                   type="radio"
                   value="pending"
-                  defaultChecked={invoice.status === "pending"}
+                  defaultChecked={quotation.status === "pending"}
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                 />
                 <label
@@ -116,7 +119,7 @@ export default function EditInvoiceForm({
                   name="status"
                   type="radio"
                   value="paid"
-                  defaultChecked={invoice.status === "paid"}
+                  defaultChecked={quotation.status === "paid"}
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                 />
                 <label
@@ -145,7 +148,7 @@ export default function EditInvoiceForm({
         >
           Cancel
         </Link>
-        <Button type="submit">Edit Invoice</Button>
+        <Button type="submit">Edit Quotation</Button>
       </div>
     </form>
   );
