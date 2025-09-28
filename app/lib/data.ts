@@ -1,3 +1,5 @@
+"use server";
+
 import { formatCurrency } from "./utils";
 import { prisma } from "@/app/lib/prisma";
 
