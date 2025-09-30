@@ -1,21 +1,50 @@
+"use server";
+
+import { z } from "zod";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
 
+const CredentialsSchema = z.object({
+  email: z.string().email("Email inválido"),
+  password: z.string().min(6, "Mínimo 6 caracteres"),
+  redirectTo: z.string().default("/dashboard"),
+});
+
 export const authenticate = async (
-  prevState: string | undefined,
+  _prevState: string | undefined,
   formData: FormData
-) => {
+): Promise<string | undefined> => {
+  const parsed = CredentialsSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+    redirectTo: formData.get("redirectTo") ?? "/dashboard",
+  });
+
+  if (!parsed.success) {
+    return parsed.error.issues[0]?.message ?? "Datos inválidos";
+  }
+
+  const { email, password, redirectTo } = parsed.data;
+
   try {
-    await signIn("credentials", formData);
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
+    await signIn("credentials", {
+      email,
+      password,
+      redirectTo,
+    });
+    return undefined;
+  } catch (e) {
+    if (e instanceof AuthError) {
+      switch (e.type) {
         case "CredentialsSignin":
-          return "Invalid Credentials.";
+          return "Usuario o contraseña incorrectos";
+        case "CallbackRouteError":
+        case "OAuthCallbackError":
+          return "Error de autenticación";
         default:
-          return "Something went wrong.";
+          return "No se pudo iniciar sesión";
       }
     }
-    throw error;
+    throw e;
   }
 };
