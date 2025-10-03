@@ -6,6 +6,7 @@ import {
   DocumentDuplicateIcon,
   BuildingStorefrontIcon,
   TagIcon,
+  BanknotesIcon,
 } from "@heroicons/react/24/outline";
 
 import Link from "next/link";
@@ -23,11 +24,17 @@ const links = [
     icon: DocumentDuplicateIcon,
   },
   { name: "Customers", href: "/dashboard/customers", icon: UserGroupIcon },
-  { name: "Categories", href: "/dashboard/categories", icon: TagIcon },
+
   {
     name: "Products",
     href: "/dashboard/products",
     icon: BuildingStorefrontIcon,
+  },
+  { name: "Categories", href: "/dashboard/categories", icon: TagIcon },
+  {
+    name: "Billing Details",
+    href: "/dashboard/billing-details",
+    icon: BanknotesIcon,
   },
 ];
 

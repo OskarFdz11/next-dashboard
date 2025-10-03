@@ -1,0 +1,166 @@
+"use server";
+
+import { prisma } from "@/app/lib/prisma";
+
+export async function fetchBillingDetails() {
+  try {
+    const billingDetails = await prisma.billingDetails.findMany({
+      include: {
+        address: true, // Incluir todos los campos de la dirección
+        quotations: {
+          select: {
+            id: true,
+            total: true,
+            status: true,
+          },
+        },
+        _count: {
+          select: { quotations: true },
+        },
+      },
+      orderBy: { name: "asc" }, // Ordenar por nombre en lugar de id
+    });
+
+    // Convertir phone BigInt a string para serialización
+    return billingDetails.map((detail) => ({
+      ...detail,
+      phone: detail.phone?.toString() || null,
+    }));
+  } catch (err) {
+    console.error("Database Error:", err);
+    throw new Error("Failed to fetch all billing details.");
+  }
+}
+
+export async function fetchBillingDetailById(id: string) {
+  try {
+    const billingDetail = await prisma.billingDetails.findUnique({
+      where: { id: Number(id) },
+      include: {
+        address: true, // Incluir la dirección completa
+        quotations: {
+          select: {
+            id: true,
+            total: true,
+            status: true,
+            date: true,
+          },
+        },
+      },
+    });
+
+    if (!billingDetail) return null;
+
+    // Convertir phone BigInt a string
+    return {
+      ...billingDetail,
+      phone: billingDetail.phone?.toString() || null,
+    };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch billing detail.");
+  }
+}
+
+export async function fetchFilteredBillingDetails(
+  query: string,
+  currentPage: number
+) {
+  const ITEMS_PER_PAGE = 6;
+
+  try {
+    const whereCondition = {
+      OR: [
+        { name: { contains: query, mode: "insensitive" as const } },
+        { lastname: { contains: query, mode: "insensitive" as const } },
+        { company: { contains: query, mode: "insensitive" as const } },
+        { email: { contains: query, mode: "insensitive" as const } },
+        { rfc: { contains: query, mode: "insensitive" as const } },
+        { clabe: { contains: query, mode: "insensitive" as const } },
+        { checkAccount: { contains: query, mode: "insensitive" as const } },
+        // Buscar en campos de dirección también
+        {
+          address: {
+            street: { contains: query, mode: "insensitive" as const },
+          },
+        },
+        {
+          address: {
+            city: { contains: query, mode: "insensitive" as const },
+          },
+        },
+        {
+          address: {
+            colony: { contains: query, mode: "insensitive" as const },
+          },
+        },
+        // Solo buscar por teléfono si el query es numérico
+        ...(query && !isNaN(Number(query)) && query.length >= 3
+          ? [{ phone: { equals: BigInt(query) } }]
+          : []),
+      ],
+    };
+
+    const [billingDetails, totalCount] = await Promise.all([
+      prisma.billingDetails.findMany({
+        where: whereCondition,
+        include: {
+          address: true,
+          quotations: {
+            select: {
+              id: true,
+              total: true,
+              status: true,
+            },
+          },
+          _count: {
+            select: { quotations: true },
+          },
+        },
+        orderBy: { name: "asc" },
+        skip: (currentPage - 1) * ITEMS_PER_PAGE,
+        take: ITEMS_PER_PAGE,
+      }),
+      prisma.billingDetails.count({
+        where: whereCondition,
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+    // Convertir phone BigInt a string para serialización
+    const serializedBillingDetails = billingDetails.map((detail) => ({
+      ...detail,
+      phone: detail.phone?.toString() || null,
+    }));
+
+    return {
+      billingDetails: serializedBillingDetails,
+      totalCount,
+      totalPages,
+    };
+  } catch (err) {
+    console.error("Database Error:", err);
+    throw new Error("Failed to fetch billing details table.");
+  }
+}
+
+// Función adicional para obtener billing details básicos (para selects/dropdowns)
+export async function fetchBillingDetailsField() {
+  try {
+    const billingDetails = await prisma.billingDetails.findMany({
+      select: {
+        id: true,
+        name: true,
+        lastname: true,
+        company: true,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    return billingDetails;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch billing details field.");
+  }
+}

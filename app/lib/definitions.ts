@@ -105,6 +105,27 @@ export type ProductField = {
   category: CategoryField;
   quotationProducts?: QuotationProductField[];
 };
+
+export type BillingDetailsField = {
+  id: string | number;
+  name: string;
+  lastname: string;
+  company: string;
+  rfc: string;
+  clabe: string;
+  checkAccount: string;
+  phone: string | null; // Como string para serialización
+  email: string;
+  address?: {
+    id: string | number;
+    street: string;
+    outsideNumber: string;
+    colony: string;
+    city: string;
+    cp: string;
+  };
+};
+
 export type QuotationProductField = {
   quotationId: string | number;
   productId: string | number;
