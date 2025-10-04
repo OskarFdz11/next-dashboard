@@ -1,30 +1,20 @@
 "use client";
 
-import { CustomerField, QuotationForm } from "@/app/lib/definitions";
+import { useActionState } from "react";
+import { CustomerField } from "@/app/lib/definitions";
+import Link from "next/link";
 import {
   CheckIcon,
   ClockIcon,
   CurrencyDollarIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
-import Link from "next/link";
 import { Button } from "@/app/ui/button";
-import { State, updateQuotation } from "@/app/lib/actions";
-import { useActionState } from "react";
+import { createQuotation, State } from "@/app/lib/quotations-actions/actions";
 
-export default function EditInvoiceForm({
-  quotation,
-  customers,
-}: {
-  quotation: QuotationForm;
-  customers: CustomerField[];
-}) {
+export default function Form({ customers }: { customers: CustomerField[] }) {
   const initialState: State = { message: null, errors: {} };
-  const updateQuotationWithId = updateQuotation.bind(null, quotation.id);
-  const [state, formAction] = useActionState(
-    updateQuotationWithId,
-    initialState
-  );
+  const [state, formAction] = useActionState(createQuotation, initialState);
   return (
     <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
@@ -38,7 +28,8 @@ export default function EditInvoiceForm({
               id="customer"
               name="customerId"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue={quotation.customerId}
+              defaultValue=""
+              aria-describedby="customer-error"
             >
               <option value="" disabled>
                 Select a customer
@@ -61,26 +52,25 @@ export default function EditInvoiceForm({
           </div>
         </div>
 
-        {/* Quotation Amount */}
+        {/* Invoice Total */}
         <div className="mb-4">
-          <label htmlFor="amount" className="mb-2 block text-sm font-medium">
-            Choose an amount
+          <label htmlFor="total" className="mb-2 block text-sm font-medium">
+            Choose a total amount
           </label>
           <div className="relative mt-2 rounded-md">
             <div className="relative">
               <input
-                id="amount"
-                name="amount"
+                id="total"
+                name="total"
                 type="number"
                 step="0.01"
-                defaultValue={quotation.total}
                 placeholder="Enter USD amount"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               />
               <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
           </div>
-          <div id="amount-error" aria-live="polite" aria-atomic="true">
+          <div id="total-error" aria-live="polite" aria-atomic="true">
             {state.errors?.total &&
               state.errors.total.map((error: string) => (
                 <p className="mt-2 text-sm text-red-500" key={error}>
@@ -93,7 +83,7 @@ export default function EditInvoiceForm({
         {/* Invoice Status */}
         <fieldset>
           <legend className="mb-2 block text-sm font-medium">
-            Set the quotation status
+            Set the invoice status
           </legend>
           <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
             <div className="flex gap-4">
@@ -103,7 +93,6 @@ export default function EditInvoiceForm({
                   name="status"
                   type="radio"
                   value="pending"
-                  defaultChecked={quotation.status === "pending"}
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                 />
                 <label
@@ -119,7 +108,6 @@ export default function EditInvoiceForm({
                   name="status"
                   type="radio"
                   value="paid"
-                  defaultChecked={quotation.status === "paid"}
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                 />
                 <label
@@ -130,14 +118,14 @@ export default function EditInvoiceForm({
                 </label>
               </div>
             </div>
-            <div id="status-error" aria-live="polite" aria-atomic="true">
-              {state.errors?.status &&
-                state.errors.status.map((error: string) => (
-                  <p className="mt-2 text-sm text-red-500" key={error}>
-                    {error}
-                  </p>
-                ))}
-            </div>
+          </div>
+          <div id="status-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.status &&
+              state.errors.status.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
           </div>
         </fieldset>
       </div>
@@ -148,7 +136,7 @@ export default function EditInvoiceForm({
         >
           Cancel
         </Link>
-        <Button type="submit">Edit Quotation</Button>
+        <Button type="submit">Create Invoice</Button>
       </div>
     </form>
   );

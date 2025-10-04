@@ -2,7 +2,7 @@ import Image from "next/image";
 import { UpdateQuotation, DeleteQuotation } from "@/app/ui/invoices/buttons";
 import InvoiceStatus from "@/app/ui/invoices/status";
 import { formatDateToLocal, formatCurrency } from "@/app/lib/utils";
-import { fetchFilteredQuotations } from "@/app/lib/data";
+import { fetchFilteredQuotations } from "@/app/lib/quotations-actions/data";
 
 export default async function InvoicesTable({
   query,

@@ -1,6 +1,6 @@
 "use server";
 
-import { formatCurrency } from "./utils";
+import { formatCurrency } from "../utils";
 import { prisma } from "@/app/lib/prisma";
 
 // export async function fetchRevenue() {

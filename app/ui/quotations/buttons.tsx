@@ -1,7 +1,7 @@
 import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
-import { deleteQuotation } from "@/app/lib/actions";
+import { deleteQuotation } from "@/app/lib/quotations-actions/actions";
 
 export function CreateQuotation() {
   return (
