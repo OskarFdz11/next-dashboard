@@ -1,4 +1,4 @@
-import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
+import Breadcrumbs from "@/app/ui/quotations/breadcrumbs";
 import { fetchCustomers } from "@/app/lib/customer-actions/customer-data";
 import { Metadata } from "next";
 import CreateCustomerForm from "@/app/ui/customers/create-customer-form";

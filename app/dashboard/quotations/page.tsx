@@ -1,17 +1,17 @@
 import Pagination from "@/app/ui/quotations/pagination";
 import Search from "@/app/ui/search";
-import Table from "@/app/ui/quotations/table";
+import QuotationsTable from "@/app/ui/quotations/table";
 import { CreateQuotation } from "@/app/ui/quotations/buttons";
 import { lusitana } from "@/app/ui/fonts";
 import { InvoicesTableSkeleton } from "@/app/ui/skeletons";
 import { Suspense } from "react";
-import { fetchQuotationsPages } from "@/app/lib/quotations-actions/data";
-
+import { fetchQuotationsPages } from "@/app/lib/quotations-actions/quotations-data";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Quotations",
 };
+
 export default async function Page(props: {
   searchParams?: Promise<{
     query?: string;
@@ -33,7 +33,7 @@ export default async function Page(props: {
         <CreateQuotation />
       </div>
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
-        <Table query={query} currentPage={currentPage} />
+        <QuotationsTable query={query} currentPage={currentPage} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />

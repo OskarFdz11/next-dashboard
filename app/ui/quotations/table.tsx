@@ -1,10 +1,9 @@
-import Image from "next/image";
-import { UpdateQuotation, DeleteQuotation } from "@/app/ui/invoices/buttons";
-import InvoiceStatus from "@/app/ui/invoices/status";
+import { UpdateQuotation, DeleteQuotation } from "@/app/ui/quotations/buttons";
+import QuotationStatus from "@/app/ui/quotations/status";
 import { formatDateToLocal, formatCurrency } from "@/app/lib/utils";
-import { fetchFilteredQuotations } from "@/app/lib/quotations-actions/data";
+import { fetchFilteredQuotations } from "@/app/lib/quotations-actions/quotations-data";
 
-export default async function InvoicesTable({
+export default async function QuotationsTable({
   query,
   currentPage,
 }: {
@@ -17,6 +16,7 @@ export default async function InvoicesTable({
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
+          {/* Mobile View */}
           <div className="md:hidden">
             {quotations?.map((quotation) => (
               <div
@@ -26,28 +26,32 @@ export default async function InvoicesTable({
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <div className="mb-2 flex items-center">
-                      {/* <Image
-                        src={quotation.image_url}
-                        className="mr-2 rounded-full"
-                        width={28}
-                        height={28}
-                        alt={`${quotation.name}'s profile picture`}
-                      /> */}
-                      <p>{quotation.customer.name}</p>
+                      <p className="font-medium">
+                        {quotation.customer.name} {quotation.customer.lastname}
+                      </p>
                     </div>
                     <p className="text-sm text-gray-500">
                       {quotation.customer.email}
                     </p>
+                    <p className="text-sm text-gray-500">
+                      {quotation.customer.company}
+                    </p>
                   </div>
-                  <InvoiceStatus status={quotation.status} />
+                  <QuotationStatus status={quotation.status} />
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
                     <p className="text-xl font-medium">
-                      {formatCurrency(quotation.total as unknown as number)}
+                      {formatCurrency(quotation.total)}
                     </p>
-                    <p>
-                      {formatDateToLocal(quotation.date as unknown as string)}
+                    <p className="text-sm text-gray-500">
+                      Subtotal: {formatCurrency(quotation.subtotal)}
+                    </p>
+                    {quotation.iva && (
+                      <p className="text-xs text-gray-400">IVA incluido</p>
+                    )}
+                    <p className="text-sm text-gray-500">
+                      {formatDateToLocal(quotation.date.toString())}
                     </p>
                   </div>
                   <div className="flex justify-end gap-2">
@@ -58,6 +62,8 @@ export default async function InvoicesTable({
               </div>
             ))}
           </div>
+
+          {/* Desktop Table */}
           <table className="hidden min-w-full text-gray-900 md:table">
             <thead className="rounded-lg text-left text-sm font-normal">
               <tr>
@@ -65,10 +71,16 @@ export default async function InvoicesTable({
                   Customer
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Email
+                  Company
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Amount
+                  Subtotal
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Total
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  IVA
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Date
@@ -77,7 +89,7 @@ export default async function InvoicesTable({
                   Status
                 </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
-                  <span className="sr-only">Edit</span>
+                  <span className="sr-only">Actions</span>
                 </th>
               </tr>
             </thead>
@@ -89,27 +101,42 @@ export default async function InvoicesTable({
                 >
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex items-center gap-3">
-                      {/* <Image
-                        src={invoi  ce.image_url}
-                        className="rounded-full"
-                        width={28}
-                        height={28}
-                        alt={`${invoice.name}'s profile picture`}
-                      /> */}
-                      <p>{quotation.customer.name}</p>
+                      <div>
+                        <p className="font-medium">
+                          {quotation.customer.name}{" "}
+                          {quotation.customer.lastname}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {quotation.customer.email}
+                        </p>
+                      </div>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {quotation.customer.email}
+                    {quotation.customer.company}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {formatCurrency(quotation.total as unknown as number)}
+                    {formatCurrency(quotation.subtotal)}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3 font-medium">
+                    {formatCurrency(quotation.total)}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3 text-center">
+                    {quotation.iva ? (
+                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                        16%
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                        No
+                      </span>
+                    )}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {formatDateToLocal(quotation.date as unknown as string)}
+                    {formatDateToLocal(quotation.date.toString())}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    <InvoiceStatus status={quotation.status} />
+                    <QuotationStatus status={quotation.status} />
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">

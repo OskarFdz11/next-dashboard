@@ -1,4 +1,4 @@
-import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
+import Breadcrumbs from "@/app/ui/quotations/breadcrumbs";
 
 import { Metadata } from "next";
 import CreateBillingDetailsForm from "@/app/ui/billing-details/create-billing-details-form";

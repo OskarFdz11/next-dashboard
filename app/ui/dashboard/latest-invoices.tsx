@@ -2,7 +2,7 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import Image from "next/image";
 import { lusitana } from "@/app/ui/fonts";
-import { fetchLatestQuotations } from "@/app/lib/quotations-actions/data";
+import { fetchLatestQuotations } from "@/app/lib/quotations-actions/quotations-data";
 export default async function LatestInvoices() {
   const latestInvoices = await fetchLatestQuotations();
   return (

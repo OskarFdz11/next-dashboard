@@ -184,47 +184,37 @@ export async function fetchFilteredQuotations(
         OR: [
           { customer: { name: { contains: query, mode: "insensitive" } } },
           { customer: { email: { contains: query, mode: "insensitive" } } },
+          { customer: { company: { contains: query, mode: "insensitive" } } },
           { total: { equals: Number(query) || undefined } },
-          // { date: { equals: query ? new Date(query) : undefined } },
           { status: { equals: query ? String(query) : undefined } },
         ],
       },
       include: {
-        customer: true,
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            lastname: true,
+            email: true,
+            company: true,
+          },
+        },
       },
       orderBy: { date: "desc" },
-      skip: (currentPage - 1) * ITEMS_PER_PAGE,
+      skip: offset,
       take: ITEMS_PER_PAGE,
     });
 
-    // const invoices = await sql<InvoicesTable[]>`
-    //   SELECT
-    //     invoices.id,
-    //     invoices.amount,
-    //     invoices.date,
-    //     invoices.status,
-    //     customers.name,
-    //     customers.email,
-    //     customers.image_url
-    //   FROM invoices
-    //   JOIN customers ON invoices.customer_id = customers.id
-    //   WHERE
-    //     customers.name ILIKE ${`%${query}%`} OR
-    //     customers.email ILIKE ${`%${query}%`} OR
-    //     invoices.amount::text ILIKE ${`%${query}%`} OR
-    //     invoices.date::text ILIKE ${`%${query}%`} OR
-    //     invoices.status ILIKE ${`%${query}%`}
-    //   ORDER BY invoices.date DESC
-    //   LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    // `;
-
-    return filteredQuotations;
+    return filteredQuotations.map((quotation) => ({
+      ...quotation,
+      total: Number(quotation.total),
+      subtotal: Number(quotation.subtotal),
+    }));
   } catch (error) {
     console.error("Database Error:", error);
-    throw new Error("Failed to fetch invoices.");
+    throw new Error("Failed to fetch quotations.");
   }
 }
-
 export async function fetchQuotationsPages(query: string) {
   const ITEMS_PER_PAGE = 6;
 
@@ -257,11 +247,56 @@ export async function fetchQuotationById(id: string) {
   try {
     const quotation = await prisma.quotation.findUnique({
       where: { id: Number(id) },
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            lastname: true,
+            email: true,
+            company: true,
+          },
+        },
+        billingDetails: {
+          select: {
+            id: true,
+            name: true,
+            lastname: true,
+            company: true,
+            email: true,
+            phone: true,
+          },
+        },
+        products: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                image_url: true,
+                brand: true,
+              },
+            },
+          },
+        },
+      },
     });
+
     if (!quotation) return null;
+
     return {
       ...quotation,
-      total: Number(quotation.total) / 100,
+      subtotal: Number(quotation.subtotal),
+      total: Number(quotation.total),
+      products: quotation.products.map((p) => ({
+        ...p,
+        price: Number(p.price),
+      })),
+      billingDetails: {
+        ...quotation.billingDetails,
+        phone: quotation.billingDetails.phone?.toString() || null,
+      },
     };
   } catch (error) {
     console.error("Database Error:", error);

@@ -1,6 +1,6 @@
 import Table from "@/app/ui/categories/table";
 import { lusitana } from "@/app/ui/fonts";
-import Pagination from "@/app/ui/invoices/pagination";
+import Pagination from "@/app/ui/quotations/pagination";
 import Search from "@/app/ui/search";
 import { InvoicesTableSkeleton } from "@/app/ui/skeletons";
 import { Metadata } from "next";

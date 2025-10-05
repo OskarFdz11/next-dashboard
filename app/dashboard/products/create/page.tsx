@@ -1,30 +1,38 @@
-import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
-import { fetchCategories } from "@/app/lib/categories-actions/categories-data";
-import { Metadata } from "next";
-import CreateProductForm from "@/app/ui/products/create-product-form";
+import CreateQuotationForm from "@/app/ui/quotations/create-form";
+import Breadcrumbs from "@/app/ui/quotations/breadcrumbs";
+import { fetchCustomers } from "@/app/lib/customer-actions/customer-data";
 import { fetchProducts } from "@/app/lib/products-actions/products-data";
+import { fetchBillingDetailsField } from "@/app/lib/billing-details-actions/billing-details-data";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Create Product",
+  title: "Create Quotation",
 };
 
 export default async function Page() {
-  const products = await fetchProducts();
-  const categories = await fetchCategories();
+  const [customers, products, billingDetails] = await Promise.all([
+    fetchCustomers(),
+    fetchProducts(),
+    fetchBillingDetailsField(),
+  ]);
 
   return (
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: "Products", href: "/dashboard/products" },
+          { label: "Quotations", href: "/dashboard/quotations" },
           {
-            label: "Create Product",
-            href: "/dashboard/products/create",
+            label: "Create Quotation",
+            href: "/dashboard/quotations/create",
             active: true,
           },
         ]}
       />
-      <CreateProductForm products={products} categories={categories} />
+      <CreateQuotationForm
+        customers={customers}
+        products={products}
+        billingDetails={billingDetails}
+      />
     </main>
   );
 }

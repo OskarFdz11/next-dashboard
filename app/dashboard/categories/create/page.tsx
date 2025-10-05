@@ -1,4 +1,4 @@
-import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
+import Breadcrumbs from "@/app/ui/quotations/breadcrumbs";
 import { fetchCategories } from "@/app/lib/categories-actions/categories-data";
 import { Metadata } from "next";
 import CreateCategoryForm from "@/app/ui/categories/create-category-form";

@@ -2,7 +2,7 @@ import { fetchFilteredCustomers } from "@/app/lib/customer-actions/customer-data
 import Table from "@/app/ui/customers/table";
 import { lusitana } from "@/app/ui/fonts";
 import { CreateCustomer } from "@/app/ui/customers/buttons";
-import Pagination from "@/app/ui/invoices/pagination";
+import Pagination from "@/app/ui/quotations/pagination";
 import Search from "@/app/ui/search";
 import { InvoicesTableSkeleton } from "@/app/ui/skeletons";
 import { Metadata } from "next";

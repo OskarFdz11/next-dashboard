@@ -1,5 +1,5 @@
 import Form from "@/app/ui/products/edit-form";
-import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
+import Breadcrumbs from "@/app/ui/quotations/breadcrumbs";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { fetchProductById } from "@/app/lib/products-actions/products-data";

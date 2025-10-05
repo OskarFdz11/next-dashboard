@@ -1,5 +1,5 @@
 import Form from "@/app/ui/customers/edit-form";
-import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
+import Breadcrumbs from "@/app/ui/quotations/breadcrumbs";
 import { fetchCustomerById } from "@/app/lib/customer-actions/customer-data";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";

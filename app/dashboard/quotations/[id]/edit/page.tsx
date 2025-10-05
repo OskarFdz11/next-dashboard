@@ -1,46 +1,49 @@
-import Form from "@/app/ui/invoices/edit-form";
-import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
-import { fetchQuotationById } from "@/app/lib/quotations-actions/data";
+import EditQuotationForm from "@/app/ui/quotations/edit-form";
+import Breadcrumbs from "@/app/ui/quotations/breadcrumbs";
+import { fetchQuotationById } from "@/app/lib/quotations-actions/quotations-data";
 import { fetchCustomers } from "@/app/lib/customer-actions/customer-data";
+import { fetchProducts } from "@/app/lib/products-actions/products-data";
+import { fetchBillingDetailsField } from "@/app/lib/billing-details-actions/billing-details-data";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Edit Invoice",
+  title: "Edit Quotation",
 };
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const id = params.id;
-  const [quotation, customers] = await Promise.all([
+
+  const [quotation, customers, products, billingDetails] = await Promise.all([
     fetchQuotationById(id),
     fetchCustomers(),
+    fetchProducts(),
+    fetchBillingDetailsField(),
   ]);
+
   if (!quotation) {
     notFound();
   }
 
-  const quotationForForm = {
-    ...quotation,
-    subtotal:
-      typeof quotation.subtotal === "object" && "toNumber" in quotation.subtotal
-        ? quotation.subtotal.toNumber()
-        : Number(quotation.subtotal),
-    status: quotation.status as "pending" | "paid",
-  };
   return (
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: "Invoices", href: "/dashboard/invoices" },
+          { label: "Quotations", href: "/dashboard/quotations" },
           {
-            label: "Edit Invoice",
-            href: `/dashboard/invoices/${id}/edit`,
+            label: "Edit Quotation",
+            href: `/dashboard/quotations/${id}/edit`,
             active: true,
           },
         ]}
       />
-      <Form quotation={quotationForForm} customers={customers} />
+      <EditQuotationForm
+        quotation={quotation}
+        customers={customers}
+        products={products}
+        billingDetails={billingDetails}
+      />
     </main>
   );
 }

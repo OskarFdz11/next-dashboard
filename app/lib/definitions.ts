@@ -126,6 +126,19 @@ export type BillingDetailsField = {
   };
 };
 
+export type QuotationForm = {
+  id: string | number;
+  customerId: string | number;
+  billingDetailsId: string | number;
+  iva: boolean;
+  subtotal: number;
+  total: number;
+  notes: string;
+  status: "pending" | "paid";
+  date: Date;
+  products: QuotationProductInput[];
+};
+
 export type QuotationProductField = {
   quotationId: string | number;
   productId: string | number;
@@ -134,12 +147,48 @@ export type QuotationProductField = {
   product: ProductField;
 };
 
-export type QuotationForm = {
-  id: string | number;
-  customerId: string | number;
+export type QuotationProductInput = {
+  productId: string | number;
+  quantity: number;
+  price: number;
+};
+
+export type QuotationWithDetails = {
+  id: number;
+  date: Date;
+  customerId: number;
+  billingDetailsId: number;
   iva: boolean;
   subtotal: number;
   total: number;
   notes: string;
-  status: "pending" | "paid";
+  status: string;
+  customer: {
+    id: number;
+    name: string;
+    lastname: string;
+    email: string;
+    company: string;
+  };
+  billingDetails: {
+    id: number;
+    name: string;
+    lastname: string;
+    company: string;
+    email: string;
+    phone: string | null;
+  };
+  products: {
+    quotationId: number;
+    productId: number;
+    quantity: number;
+    price: number;
+    product: {
+      id: number;
+      name: string;
+      description: string;
+      image_url: string;
+      brand: string;
+    };
+  }[];
 };

@@ -1,5 +1,5 @@
 import Form from "@/app/ui/billing-details/edit-form";
-import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
+import Breadcrumbs from "@/app/ui/quotations/breadcrumbs";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { fetchBillingDetailById } from "@/app/lib/billing-details-actions/billing-details-data";
