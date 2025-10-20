@@ -154,11 +154,22 @@ export async function fetchBillingDetailsField() {
         name: true,
         lastname: true,
         company: true,
+        email: true,
+        rfc: true,
+        clabe: true,
+        checkAccount: true,
+        phone: true,
       },
       orderBy: { name: "asc" },
     });
 
-    return billingDetails;
+    return billingDetails.map((billing) => ({
+      ...billing,
+      phone: billing.phone?.toString() || "",
+      rfc: billing.rfc || "",
+      clabe: billing.clabe || "",
+      checkAccount: billing.checkAccount || "",
+    }));
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch billing details field.");

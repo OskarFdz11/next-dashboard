@@ -29,6 +29,8 @@
     "postcss": "8.5.1",
     "postgres": "^3.4.6",
     "prisma": "^6.16.0",
+    "pupeteer": "^0.0.1",
+    "puppeteer": "^24.24.0",
     "react": "latest",
     "react-dom": "latest",
     "tailwindcss": "3.4.17",
@@ -38,6 +40,7 @@
   },
   "devDependencies": {
     "@types/node": "22.10.7",
+    "@types/puppeteer": "^7.0.4",
     "@types/react": "19.0.7",
     "@types/react-dom": "19.0.3",
     "eslint": "^9.34.0",

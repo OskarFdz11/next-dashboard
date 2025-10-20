@@ -303,3 +303,34 @@ export async function fetchQuotationById(id: string) {
     throw new Error("Failed to fetch quotation.");
   }
 }
+
+export async function getQuotationDataForPDF(quotationId: number) {
+  try {
+    const quotation = await prisma.quotation.findUnique({
+      where: { id: quotationId },
+      include: {
+        customer: true,
+        billingDetails: true,
+        products: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    if (!quotation) {
+      throw new Error("Quotation not found");
+    }
+
+    return {
+      quotation,
+      customer: quotation.customer,
+      billingDetails: quotation.billingDetails,
+      products: quotation.products,
+    };
+  } catch (error) {
+    console.error("Error fetching quotation data:", error);
+    throw new Error("Failed to fetch quotation data");
+  }
+}

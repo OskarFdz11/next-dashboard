@@ -126,6 +126,7 @@ export const updateCustomer = async (
 };
 
 export const deleteCustomer = async (id: number | string) => {
+  "use server";
   try {
     await prisma.customer.delete({
       where: { id: Number(id) },

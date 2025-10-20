@@ -37,13 +37,16 @@ const UpdateQuotation = FormSchema.omit({ id: true });
 
 export type State = {
   errors?: {
+    products?: string[];
     customerId?: string[];
     billingDetailsId?: string[];
-    products?: string[];
+    iva?: string[];
+    notes?: string[];
     status?: string[];
     general?: string[];
   };
-  message?: string | null;
+  message: string;
+  success: boolean;
 };
 
 export const createQuotation = async (prevState: State, formData: FormData) => {
@@ -73,6 +76,7 @@ export const createQuotation = async (prevState: State, formData: FormData) => {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing or invalid fields. Failed to create quotation.",
+      success: false,
     };
   }
 
@@ -119,6 +123,7 @@ export const createQuotation = async (prevState: State, formData: FormData) => {
 
     revalidatePath("/dashboard/quotations");
     return {
+      errors: {},
       message: "Quotation created successfully!",
       success: true,
     };
@@ -127,6 +132,7 @@ export const createQuotation = async (prevState: State, formData: FormData) => {
     return {
       errors: { general: ["Database error occurred"] },
       message: "Database Error: Failed to create quotation.",
+      success: false,
     };
   }
 };
@@ -161,6 +167,7 @@ export const updateQuotation = async (
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing or invalid fields. Failed to update quotation.",
+      success: false,
     };
   }
 
@@ -207,6 +214,7 @@ export const updateQuotation = async (
       });
     });
     return {
+      errors: {},
       message: "Quotation updated successfully!",
       success: true,
     };
@@ -215,11 +223,67 @@ export const updateQuotation = async (
     return {
       errors: { general: ["Database error occurred"] },
       message: "Database Error: Failed to update quotation.",
+      success: false,
     };
   }
 };
 
+export async function duplicateQuotation(id: string | number) {
+  "use server";
+  try {
+    await prisma.$transaction(async (tx) => {
+      const quotation = await tx.quotation.findUnique({
+        where: { id: Number(id) },
+        include: { products: true },
+      });
+
+      if (!quotation) throw new Error("Quotation not found");
+
+      // Crear una nueva cotización con los mismos datos
+      const newQuotation = await tx.quotation.create({
+        data: {
+          customerId: quotation.customerId,
+          billingDetailsId: quotation.billingDetailsId,
+          iva: quotation.iva,
+          subtotal: quotation.subtotal,
+          total: quotation.total,
+          notes: quotation.notes,
+          status: quotation.status,
+          date: new Date(),
+        },
+      });
+
+      // Duplicar los productos de la cotización
+      await tx.quotationProduct.createMany({
+        data: quotation.products.map((product) => ({
+          quotationId: newQuotation.id,
+          productId: product.productId,
+          quantity: product.quantity,
+          price: product.price,
+        })),
+      });
+
+      return newQuotation;
+    });
+
+    revalidatePath("/dashboard/quotations");
+    return {
+      errors: {},
+      message: "Quotation duplicated successfully!",
+      success: true,
+    };
+  } catch (error) {
+    console.error("Database Error:", error);
+    return {
+      errors: { general: ["Database error occurred"] },
+      message: "Database Error: Failed to duplicate quotation.",
+      success: false,
+    };
+  }
+}
+
 export async function deleteQuotation(id: string | number) {
+  "use server";
   try {
     await prisma.$transaction(async (tx) => {
       // Eliminar productos de la cotización primero

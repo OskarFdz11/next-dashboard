@@ -44,7 +44,7 @@ export default function EditQuotationForm({
   billingDetails: BillingDetailsField[];
 }) {
   const router = useRouter();
-  const initialState: State = { message: null, errors: {} };
+  const initialState: State = { message: "", errors: {}, success: false };
   const updateQuotationWithId = updateQuotation.bind(null, quotation.id);
   const [state, formAction] = useActionState(
     updateQuotationWithId,

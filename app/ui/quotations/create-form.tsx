@@ -41,8 +41,11 @@ export default function CreateQuotationForm({
   billingDetails: BillingDetailsField[];
 }) {
   const router = useRouter();
-  const initialState: State = { message: null, errors: {} };
-  const [state, formAction] = useActionState(createQuotation, initialState);
+  const initialState: State = { message: "", errors: {}, success: false };
+  const [state, formAction] = useActionState<State, FormData>(
+    createQuotation,
+    initialState
+  );
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [selectedProducts, setSelectedProducts] = useState<QuotationProduct[]>([

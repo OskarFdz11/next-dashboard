@@ -6,10 +6,20 @@ import { prisma } from "@/app/lib/prisma";
 export async function fetchCustomers() {
   try {
     const customers = await prisma.customer.findMany({
-      select: { id: true, name: true },
+      select: {
+        id: true,
+        name: true,
+        lastname: true,
+        email: true,
+        phone: true,
+        company: true,
+      },
       orderBy: { name: "asc" },
     });
-    return customers;
+    return customers.map((customer) => ({
+      ...customer,
+      phone: customer.phone?.toString() || "",
+    }));
   } catch (err) {
     console.error("Database Error:", err);
     throw new Error("Failed to fetch all customers.");

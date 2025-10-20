@@ -86,6 +86,10 @@ export type FormattedCustomersTable = {
 export type CustomerField = {
   id: string | number;
   name: string;
+  lastname: string;
+  email: string;
+  phone: string | null;
+  company: string;
 };
 
 export type CategoryField = {
