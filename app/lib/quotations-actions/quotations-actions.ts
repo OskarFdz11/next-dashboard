@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/app/lib/prisma";
+import { DuplicateQuotationResponse } from "../definitions";
 
 // Schema para productos en la cotización
 const QuotationProductSchema = z.object({
@@ -228,59 +229,71 @@ export const updateQuotation = async (
   }
 };
 
-export async function duplicateQuotation(id: string | number) {
+export const duplicateQuotation = async (
+  id: string | number
+): Promise<DuplicateQuotationResponse> => {
   "use server";
   try {
-    await prisma.$transaction(async (tx) => {
-      const quotation = await tx.quotation.findUnique({
+    const result = await prisma.$transaction(async (tx) => {
+      const originalQuotation = await prisma.quotation.findUnique({
         where: { id: Number(id) },
-        include: { products: true },
+        include: {
+          products: true,
+        },
       });
 
-      if (!quotation) throw new Error("Quotation not found");
+      if (!originalQuotation) {
+        return {
+          errors: { general: ["Quotation not found"] },
+          message: "Quotation not found",
+          success: false as const,
+        } as const;
+      }
 
-      // Crear una nueva cotización con los mismos datos
-      const newQuotation = await tx.quotation.create({
+      const duplicatedQuotation = await tx.quotation.create({
         data: {
-          customerId: quotation.customerId,
-          billingDetailsId: quotation.billingDetailsId,
-          iva: quotation.iva,
-          subtotal: quotation.subtotal,
-          total: quotation.total,
-          notes: quotation.notes,
-          status: quotation.status,
+          customerId: originalQuotation.customerId,
+          billingDetailsId: originalQuotation.billingDetailsId,
+          iva: originalQuotation.iva,
+          subtotal: originalQuotation.subtotal,
+          total: originalQuotation.total,
+          notes: originalQuotation.notes,
+          status: "pending", // Reset status for duplicate
           date: new Date(),
         },
       });
 
-      // Duplicar los productos de la cotización
-      await tx.quotationProduct.createMany({
-        data: quotation.products.map((product) => ({
-          quotationId: newQuotation.id,
-          productId: product.productId,
-          quantity: product.quantity,
-          price: product.price,
-        })),
-      });
+      // Duplicate products
+      if (originalQuotation.products.length > 0) {
+        await tx.quotationProduct.createMany({
+          data: originalQuotation.products.map((product) => ({
+            quotationId: duplicatedQuotation.id,
+            productId: product.productId,
+            quantity: product.quantity,
+            price: product.price,
+          })),
+        });
+      }
 
-      return newQuotation;
+      return {
+        errors: {},
+        message: "Quotation duplicated successfully",
+        success: true as const,
+        quotationId: duplicatedQuotation.id,
+      } as const;
     });
 
     revalidatePath("/dashboard/quotations");
-    return {
-      errors: {},
-      message: "Quotation duplicated successfully!",
-      success: true,
-    };
+    return result; // Add this return statement
   } catch (error) {
     console.error("Database Error:", error);
     return {
       errors: { general: ["Database error occurred"] },
-      message: "Database Error: Failed to duplicate quotation.",
-      success: false,
-    };
+      message: "Database Error: Failed to duplicate quotation",
+      success: false as const,
+    } as const;
   }
-}
+};
 
 export async function deleteQuotation(id: string | number) {
   "use server";

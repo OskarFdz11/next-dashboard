@@ -6,6 +6,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { lusitana } from "@/app/ui/fonts";
 import { fetchCardData } from "@/app/lib/quotations-actions/quotations-data";
+import { formatCurrency, formatNumber } from "@/app/lib/utils";
 
 const iconMap = {
   collected: BanknotesIcon,
@@ -25,16 +26,24 @@ export default async function CardWrapper() {
     <>
       {/* NOTE: Uncomment this code in Chapter 9 */}
 
-      <Card title="Collected" value={totalPaidQuotations} type="collected" />
-      <Card title="Pending" value={totalPendingQuotations} type="pending" />
       <Card
-        title="Total Quotations"
-        value={numberOfQuotations}
+        title="Cobrado"
+        value={formatCurrency(totalPaidQuotations)}
+        type="collected"
+      />
+      <Card
+        title="Pendiente"
+        value={formatCurrency(totalPendingQuotations)}
+        type="pending"
+      />
+      <Card
+        title="Total Cotizaciones"
+        value={formatNumber(numberOfQuotations)}
         type="invoices"
       />
       <Card
-        title="Total Customers"
-        value={numberOfCustomers}
+        title="Total Clientes"
+        value={formatNumber(numberOfCustomers)}
         type="customers"
       />
     </>

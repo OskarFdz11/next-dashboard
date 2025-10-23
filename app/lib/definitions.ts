@@ -28,14 +28,14 @@ export type Invoice = {
 
 export type Revenue = {
   id: number;
-  date: Date;
-  customerId: number;
-  billingDetailsId: number;
-  iva: boolean;
+  date?: Date;
+  customerId?: number;
+  billingDetailsId?: number;
+  iva?: boolean;
   subtotal: number;
   total: number;
-  notes: string;
-  status: "pending" | "paid";
+  notes?: string;
+  status?: "pending" | "paid";
 };
 
 export type LatestInvoice = {
@@ -196,3 +196,20 @@ export type QuotationWithDetails = {
     };
   }[];
 };
+
+type DuplicateQuotationSuccess = {
+  readonly errors: {};
+  readonly message: string;
+  readonly success: true;
+  readonly quotationId: number;
+};
+
+type DuplicateQuotationError = {
+  readonly errors: { readonly general: readonly string[] };
+  readonly message: string;
+  readonly success: false;
+};
+
+export type DuplicateQuotationResponse =
+  | DuplicateQuotationSuccess
+  | DuplicateQuotationError;

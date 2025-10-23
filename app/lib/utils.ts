@@ -1,10 +1,42 @@
 import { Revenue } from "./definitions";
 
-export const formatCurrency = (amount: number) => {
-  return amount.toLocaleString("en-US", {
+// export const formatCurrency = (amount: number) => {
+//   return amount.toLocaleString("en-US", {
+//     style: "currency",
+//     currency: "USD",
+//   });
+// };
+
+export const formatCurrency = (amount: number): string => {
+  // Validar que amount sea un número válido
+  if (isNaN(amount) || amount === null || amount === undefined) {
+    return "$0.00";
+  }
+
+  return new Intl.NumberFormat("es-MX", {
     style: "currency",
-    currency: "USD",
-  });
+    currency: "MXN",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+};
+
+export const formatCurrencyCompact = (amount: number): string => {
+  if (isNaN(amount) || amount === null || amount === undefined) {
+    return "$0";
+  }
+
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+    notation: "compact",
+  }).format(amount);
+};
+
+export const formatNumber = (num: number): string => {
+  return new Intl.NumberFormat("es-MX").format(num);
 };
 
 export const truncate = (text: string, max: number) => {
@@ -25,15 +57,14 @@ export const formatDateToLocal = (
   return formatter.format(date);
 };
 
-export const generateYAxis = (revenue: Revenue[]) => {
-  // Calculate what labels we need to display on the y-axis
-  // based on highest record and in 1000s
+export const generateYAxis = (revenue: { revenue: number }[]) => {
+  // Calcular el máximo valor
   const yAxisLabels = [];
-  const highestRecord = Math.max(...revenue.map((month) => month.total));
+  const highestRecord = Math.max(...revenue.map((month) => month.revenue));
   const topLabel = Math.ceil(highestRecord / 1000) * 1000;
 
-  for (let i = topLabel; i >= 0; i -= 1000) {
-    yAxisLabels.push(`$${i / 1000}K`);
+  for (let i = topLabel; i >= 0; i -= topLabel / 10) {
+    yAxisLabels.push(i);
   }
 
   return { yAxisLabels, topLabel };

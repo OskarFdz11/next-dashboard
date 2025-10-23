@@ -103,27 +103,69 @@ import { prisma } from "@/app/lib/prisma";
 
 export async function fetchRevenue() {
   try {
-    const data = await prisma.quotation.findMany();
-    return data;
+    const data = await prisma.quotation.findMany({
+      select: {
+        total: true,
+        date: true,
+        status: true,
+      },
+      where: {
+        date: {
+          gte: new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1), // Últimos 12 meses
+        },
+      },
+      orderBy: { date: "desc" },
+    });
+
+    // Convertir Decimals a números y agrupar por mes
+    const monthlyRevenue = data.reduce(
+      (acc: { [key: string]: number }, quotation) => {
+        const total = Number(quotation.total);
+        const month = quotation.date.toLocaleDateString("es-ES", {
+          month: "short",
+          year: "numeric",
+        });
+
+        if (!acc[month]) {
+          acc[month] = 0;
+        }
+        acc[month] += total;
+
+        return acc;
+      },
+      {}
+    );
+
+    // Convertir a array y ordenar por fecha
+    const processedData = Object.entries(monthlyRevenue)
+      .map(([month, revenue]) => ({
+        month,
+        revenue: revenue as number,
+      }))
+      .slice(0, 12); // Últimos 12 meses
+
+    console.log("Monthly revenue data:", processedData);
+    return processedData;
   } catch (error) {
     console.error("Database Error:", error);
-    // Retornar datos vacíos en lugar de lanzar error
-    return [];
+    throw new Error("Failed to fetch revenue data.");
   }
 }
 
 export async function fetchLatestQuotations() {
   try {
     const data = await prisma.quotation.findMany({
+      orderBy: { date: "desc" },
+      take: 5,
       include: {
         customer: true,
       },
-      orderBy: { date: "desc" },
     });
 
     const latestQuotations = data.map((quotation) => ({
       ...quotation,
-      total: formatCurrency(quotation.total as unknown as number),
+      subtotal: Number(quotation.subtotal),
+      total: Number(quotation.total),
     }));
 
     return latestQuotations;
