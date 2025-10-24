@@ -7,11 +7,13 @@ import { useState } from "react";
 interface DownloadPDFButtonProps {
   quotationId: number;
   customerName: string;
+  hideText?: boolean;
 }
 
 export default function DownloadPDFButton({
   quotationId,
   customerName,
+  hideText = false,
 }: DownloadPDFButtonProps) {
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -79,7 +81,7 @@ export default function DownloadPDFButton({
       ) : (
         <>
           <DocumentArrowDownIcon className="w-4 h-4 mr-2" />
-          Descargar
+          {!hideText && <span className="hidden sm:block">Descargar</span>}
         </>
       )}
     </button>

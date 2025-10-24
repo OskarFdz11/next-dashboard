@@ -1,3 +1,4 @@
+// app/ui/customers/table.tsx
 import { UpdateCustomer } from "@/app/ui/customers/buttons";
 import { fetchFilteredCustomers } from "@/app/lib/customer-actions/customer-data";
 import ConfirmDeleteButton from "@/app/ui/confirm-delete-button";
@@ -14,67 +15,206 @@ export default async function CustomersTable({
     .customers;
 
   return (
-    <div className="w-full">
-      <div className="mt-6 flow-root">
-        <div className="overflow-x-auto">
-          <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden rounded-md bg-gray-50 p-2 md:pt-0">
-              {/* ✅ Condición para cuando no hay customers */}
-              {!customers || customers.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg">
-                  <div className="text-gray-400 text-center">
-                    <svg
-                      className="mx-auto h-12 w-12 text-gray-300"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"
+    <div className="mt-6 flow-root">
+      <div className="inline-block min-w-full align-middle">
+        <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
+          {/* Condición para cuando no hay customers */}
+          {!customers || customers.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg">
+              <div className="text-gray-400 text-center">
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-300"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"
+                  />
+                </svg>
+                <p className="mt-4 text-lg font-medium text-gray-900">
+                  No hay clientes
+                </p>
+                <p className="mt-2 text-sm text-gray-500">
+                  {query
+                    ? `No se encontraron clientes para "${query}"`
+                    : "Comienza agregando tu primer cliente"}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* ========== VISTA MÓVIL ========== */}
+              <div className="md:hidden space-y-3">
+                {customers.map((customer) => (
+                  <div
+                    key={customer.id}
+                    className="w-full rounded-lg bg-white p-4 shadow-sm border border-gray-200 relative"
+                  >
+                    {/* Botones centrados a la derecha */}
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col gap-2">
+                      <UpdateCustomer id={customer.id} />
+                      <ConfirmDeleteButton
+                        itemId={customer.id}
+                        deleteAction={deleteCustomer}
+                        entityName="cliente"
+                        itemName={`${customer.name} ${customer.lastname}`}
                       />
-                    </svg>
-                    <p className="mt-4 text-lg font-medium text-gray-900">
-                      No hay clientes
-                    </p>
-                    <p className="mt-2 text-sm text-gray-500">
-                      {query
-                        ? `No se encontraron clientes para "${query}"`
-                        : "Comienza agregando tu primer cliente"}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {/* Mobile */}
-                  <div className="md:hidden">
-                    {customers.map((customer) => (
-                      <div
-                        key={customer.id}
-                        className="mb-2 w-full rounded-md bg-white p-4"
-                      >
-                        <div className="flex items-center justify-between border-b pb-4">
+                    </div>
+
+                    {/* Información principal - con espacio para botones */}
+                    <div className="pr-20 space-y-3">
+                      {/* Nombre con ID */}
+                      <div className="pb-2">
+                        <p className="font-semibold text-gray-900 text-lg leading-tight">
+                          <span className="text-blue-600 font-bold">
+                            #{customer.id}
+                          </span>{" "}
+                          {customer.name} {customer.lastname}
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+                            Email
+                          </p>
+                          <p className="text-sm text-gray-700 break-all">
+                            {customer.email}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+                            Empresa
+                          </p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {customer.company}
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <p className="font-medium">
-                              {customer.name} {customer.lastname}
+                            <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+                              RFC
                             </p>
-                            <p className="text-sm text-gray-500">
-                              {customer.email}
-                            </p>
-                            <p className="text-xs text-gray-400">
-                              {customer.company}
-                            </p>
-                            <p className="text-xs text-gray-400">
-                              RFC: {customer.rfc}
-                            </p>
-                            <p className="text-xs text-gray-400">
-                              Phone: {customer.phone}
+                            <p className="text-sm text-gray-700 break-all">
+                              {customer.rfc}
                             </p>
                           </div>
-                          <div className="flex flex-col gap-2">
+                          <div>
+                            <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+                              Teléfono
+                            </p>
+                            <p className="text-sm text-gray-700">
+                              {customer.phone}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* ========== VISTA TABLET/DESKTOP ========== */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full text-gray-900">
+                  <thead className="rounded-lg text-left text-sm font-normal">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="px-3 py-5 font-medium min-w-[80px]"
+                      >
+                        ID
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-5 font-medium min-w-[120px]"
+                      >
+                        Nombre
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-5 font-medium min-w-[120px]"
+                      >
+                        Apellido
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-5 font-medium min-w-[200px]"
+                      >
+                        Email
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-5 font-medium min-w-[150px] hidden lg:table-cell"
+                      >
+                        Empresa
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-5 font-medium min-w-[120px] hidden xl:table-cell"
+                      >
+                        RFC
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-5 font-medium min-w-[120px] hidden xl:table-cell"
+                      >
+                        Teléfono
+                      </th>
+                      <th
+                        scope="col"
+                        className="relative py-3 pl-6 pr-3 min-w-[140px]"
+                      >
+                        <span className="sr-only">Acciones</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white">
+                    {customers.map((customer) => (
+                      <tr
+                        key={customer.id}
+                        className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
+                      >
+                        <td className="whitespace-nowrap px-3 py-3">
+                          <span className="font-semibold text-blue-600">
+                            #{customer.id}
+                          </span>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3">
+                          <p className="font-medium">{customer.name}</p>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3">
+                          <p className="font-medium">{customer.lastname}</p>
+                        </td>
+                        <td className="px-3 py-3">
+                          <div className="max-w-[200px]">
+                            <p className="truncate text-gray-700">
+                              {customer.email}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-3 py-3 hidden lg:table-cell">
+                          <div className="max-w-[150px]">
+                            <p className="truncate font-medium">
+                              {customer.company}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3 hidden xl:table-cell">
+                          <p className="text-gray-700">{customer.rfc}</p>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3 hidden xl:table-cell">
+                          <p className="text-gray-700">{customer.phone}</p>
+                        </td>
+                        <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                          <div className="flex items-center gap-2">
                             <UpdateCustomer id={customer.id} />
                             <ConfirmDeleteButton
                               itemId={customer.id}
@@ -83,67 +223,14 @@ export default async function CustomersTable({
                               itemName={`${customer.name} ${customer.lastname}`}
                             />
                           </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Desktop */}
-                  <table className="hidden min-w-full rounded-md text-gray-900 md:table">
-                    <thead className="rounded-md bg-gray-50 text-left text-sm font-normal">
-                      <tr>
-                        <th className="px-4 py-5 font-medium sm:pl-6">Name</th>
-                        <th className="px-3 py-5 font-medium">Lastname</th>
-                        <th className="px-3 py-5 font-medium">Email</th>
-                        <th className="px-3 py-5 font-medium">Company</th>
-                        <th className="px-3 py-5 font-medium">RFC</th>
-                        <th className="px-3 py-5 font-medium">Phone</th>
-                        <th className="py-3 pl-6 pr-3 text-right font-medium">
-                          Actions
-                        </th>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 text-gray-900">
-                      {customers.map((customer) => (
-                        <tr key={customer.id} className="group">
-                          <td className="whitespace-nowrap bg-white py-5 pl-4 pr-3 text-sm sm:pl-6">
-                            {customer.name}
-                          </td>
-                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                            {customer.lastname}
-                          </td>
-                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                            {customer.email}
-                          </td>
-                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                            {customer.company}
-                          </td>
-                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                            {customer.rfc}
-                          </td>
-                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                            {customer.phone}
-                          </td>
-                          <td className="whitespace-nowrap bg-white py-5 pl-6 pr-3 text-right">
-                            <div className="flex justify-end gap-2">
-                              <UpdateCustomer id={customer.id} />
-                              {/* ✅ Usar ConfirmDeleteButton en lugar de DeleteCustomer */}
-                              <ConfirmDeleteButton
-                                itemId={customer.id}
-                                deleteAction={deleteCustomer}
-                                entityName="cliente"
-                                itemName={`${customer.name} ${customer.lastname}`}
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </>
-              )}
-            </div>
-          </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
