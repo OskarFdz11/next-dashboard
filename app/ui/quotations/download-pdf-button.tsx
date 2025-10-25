@@ -21,24 +21,33 @@ export default function DownloadPDFButton({
     setIsDownloading(true);
 
     try {
-      const response = await fetch(`/api/quotations/${quotationId}/pdf`);
-
+      const response = await fetch(`/api/quotations/${quotationId}/pdf`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
-        throw new Error("Failed to download PDF");
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/pdf")) {
+        throw new Error("La respuesta no es un PDF válido");
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `cotizacion-${quotationId}-${customerName.replace(
-        /\s+/g,
-        "-"
-      )}.pdf`;
+      a.download = `cotizacion-${quotationId}-${customerName
+        .replace(/\s+/g, "-")
+        .toLowerCase()}.pdf`;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+
       window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (error) {
       console.error("Error downloading PDF:", error);
       alert("Error al descargar el PDF");
@@ -80,8 +89,15 @@ export default function DownloadPDFButton({
         </>
       ) : (
         <>
-          <DocumentArrowDownIcon className="w-4 h-4 mr-2" />
-          {!hideText && <span className="hidden sm:block">Descargar</span>}
+          <DocumentArrowDownIcon
+            className={`h-4 w-4 ${isDownloading ? "animate-spin" : ""}`}
+          />
+          {!hideText && !isDownloading && (
+            <span className="hidden sm:block">Descargar</span>
+          )}
+          {!hideText && isDownloading && (
+            <span className="hidden sm:block">Descargando...</span>
+          )}
         </>
       )}
     </button>

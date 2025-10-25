@@ -285,7 +285,7 @@ export async function fetchQuotationsPages(query: string) {
   }
 }
 
-export async function fetchQuotationById(id: string) {
+export async function fetchQuotationById(id: string | number) {
   try {
     const quotation = await prisma.quotation.findUnique({
       where: { id: Number(id) },
