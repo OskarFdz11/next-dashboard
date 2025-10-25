@@ -122,6 +122,10 @@ export const createBillingDetails = async (
         },
       },
     });
+    revalidatePath("/dashboard/billing-details");
+    revalidatePath("/dashboard/quotations");
+    revalidatePath("/dashboard/quotations/create");
+    revalidatePath("/dashboard/quotations/[id]/edit", "page");
   } catch (error) {
     console.error("Database Error:", error);
     return {
@@ -130,7 +134,6 @@ export const createBillingDetails = async (
     };
   }
 
-  revalidatePath("/dashboard/billing-details");
   redirect("/dashboard/billing-details");
 };
 
@@ -215,6 +218,10 @@ export const updateBillingDetails = async (
         },
       },
     });
+    revalidatePath("/dashboard/billing-details");
+    revalidatePath("/dashboard/quotations");
+    revalidatePath("/dashboard/quotations/create");
+    revalidatePath("/dashboard/quotations/[id]/edit", "page");
   } catch (error) {
     console.error("Database Error:", error);
     return {
@@ -222,9 +229,7 @@ export const updateBillingDetails = async (
       errors: { ...prevState.errors },
     };
   }
-  revalidatePath("/dashboard/billing-details");
   redirect("/dashboard/billing-details");
-  //   return { message: null, errors: {} };
 };
 
 export const deleteBillingDetails = async (id: number | string) => {

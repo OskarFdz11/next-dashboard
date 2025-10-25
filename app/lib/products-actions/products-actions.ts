@@ -78,6 +78,10 @@ export const createProduct = async (
         categoryId: Number(category),
       },
     });
+    revalidatePath("/dashboard/products");
+    revalidatePath("/dashboard/quotations");
+    revalidatePath("/dashboard/quotations/create");
+    revalidatePath("/dashboard/quotations/[id]/edit", "page");
   } catch (error) {
     return {
       message: "Database Error: Failed to create product.",
@@ -127,6 +131,10 @@ export const updateProduct = async (
         categoryId: Number(category),
       },
     });
+    revalidatePath("/dashboard/products");
+    revalidatePath("/dashboard/quotations");
+    revalidatePath("/dashboard/quotations/create");
+    revalidatePath("/dashboard/quotations/[id]/edit", "page");
   } catch (error) {
     return {
       message: "Database Error: Failed to update product.",

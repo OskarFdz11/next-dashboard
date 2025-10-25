@@ -2,6 +2,7 @@
 
 import { formatCurrency } from "../utils";
 import { prisma } from "@/app/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 // export async function fetchRevenue() {
 //   try {
@@ -218,6 +219,7 @@ export async function fetchFilteredQuotations(
   query: string,
   currentPage: number
 ) {
+  noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {

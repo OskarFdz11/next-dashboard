@@ -1,8 +1,10 @@
 "use server";
 
 import { prisma } from "@/app/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 export async function fetchProducts() {
+  noStore();
   try {
     const products = await prisma.product.findMany({
       select: {

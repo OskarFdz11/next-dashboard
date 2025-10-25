@@ -1,8 +1,10 @@
 "use server";
 
 import { prisma } from "@/app/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 export async function fetchBillingDetails() {
+  noStore();
   try {
     const billingDetails = await prisma.billingDetails.findMany({
       include: {
@@ -33,6 +35,7 @@ export async function fetchBillingDetails() {
 }
 
 export async function fetchBillingDetailById(id: string) {
+  noStore();
   try {
     const billingDetail = await prisma.billingDetails.findUnique({
       where: { id: Number(id) },
@@ -66,6 +69,7 @@ export async function fetchFilteredBillingDetails(
   query: string,
   currentPage: number
 ) {
+  noStore();
   const ITEMS_PER_PAGE = 6;
 
   try {
@@ -147,6 +151,7 @@ export async function fetchFilteredBillingDetails(
 
 // Función adicional para obtener billing details básicos (para selects/dropdowns)
 export async function fetchBillingDetailsField() {
+  noStore();
   try {
     const billingDetails = await prisma.billingDetails.findMany({
       select: {

@@ -48,6 +48,10 @@ export const createCategory = async (
         description,
       },
     });
+    revalidatePath("/dashboard/categories");
+    revalidatePath("/dashboard/products");
+    revalidatePath("/dashboard/products/create");
+    revalidatePath("/dashboard/products/[id]/edit", "page");
   } catch (error) {
     return {
       message: "Database Error: Failed to create category.",
@@ -86,6 +90,10 @@ export const updateCategory = async (
         description,
       },
     });
+    revalidatePath("/dashboard/categories");
+    revalidatePath("/dashboard/products");
+    revalidatePath("/dashboard/products/create");
+    revalidatePath("/dashboard/products/[id]/edit", "page");
   } catch (error) {
     return {
       message: "Database Error: Failed to update category.",

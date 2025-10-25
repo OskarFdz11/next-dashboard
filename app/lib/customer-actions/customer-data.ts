@@ -2,8 +2,10 @@
 
 import { formatCurrency } from "../utils";
 import { prisma } from "@/app/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 export async function fetchCustomers() {
+  noStore();
   try {
     const customers = await prisma.customer.findMany({
       select: {

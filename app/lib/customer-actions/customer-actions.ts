@@ -68,14 +68,16 @@ export const createCustomer = async (
         phone,
       },
     });
+    revalidatePath("/dashboard/customers");
+    revalidatePath("/dashboard/quotations");
+    revalidatePath("/dashboard/quotations/create");
+    revalidatePath("/dashboard/quotations/[id]/edit", "page");
   } catch (error) {
     return {
       message: "Database Error: Failed to create customer.",
       errors: { ...prevState.errors },
     };
   }
-
-  revalidatePath("/dashboard/customers");
   redirect("/dashboard/customers");
 };
 
@@ -114,6 +116,10 @@ export const updateCustomer = async (
         phone,
       },
     });
+    revalidatePath("/dashboard/customers");
+    revalidatePath("/dashboard/quotations");
+    revalidatePath("/dashboard/quotations/create");
+    revalidatePath("/dashboard/quotations/[id]/edit", "page");
   } catch (error) {
     return {
       message: "Database Error: Failed to update customer.",
@@ -121,7 +127,6 @@ export const updateCustomer = async (
     };
   }
 
-  revalidatePath("/dashboard/customers");
   redirect("/dashboard/customers");
 };
 
