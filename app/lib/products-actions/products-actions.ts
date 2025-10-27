@@ -90,7 +90,7 @@ export const createProduct = async (
   }
 
   revalidatePath("/dashboard/products");
-  redirect("/dashboard/products");
+  redirect("/dashboard/products?success=product-created");
 };
 
 export const updateProduct = async (
