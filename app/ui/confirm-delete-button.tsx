@@ -10,7 +10,9 @@ interface ConfirmDeleteButtonProps {
   /** ID del elemento a eliminar */
   itemId: string | number;
   /** Acción del servidor para eliminar */
-  deleteAction: (id: string | number) => Promise<void>;
+  deleteAction: (
+    id: string | number
+  ) => Promise<void | { success: boolean; message: string }>;
   /** Nombre del tipo de elemento (ej: "cotización", "cliente", "producto") */
   entityName: string;
   /** Nombre o descripción específica del elemento (opcional) */
@@ -62,7 +64,17 @@ export default function ConfirmDeleteButton({
   const handleConfirm = () => {
     startTransition(async () => {
       try {
-        await deleteAction(itemId);
+        const result = await deleteAction(itemId);
+
+        if (result && typeof result === "object" && "success" in result) {
+          if (!result.success) {
+            alert(
+              result.message || `Ocurrió un error al eliminar ${entityName}.`
+            );
+            setIsConfirmOpen(false);
+            return;
+          }
+        }
         setIsConfirmOpen(false);
         setIsSuccessOpen(true);
 

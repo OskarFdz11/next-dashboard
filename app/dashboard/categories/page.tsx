@@ -7,6 +7,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import { fetchFilteredCategories } from "@/app/lib/categories-actions/categories-data";
 import { CreateCategory } from "@/app/ui/categories/buttons";
+import FlashFromQuery from "@/app/ui/flash-from-query";
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -32,6 +33,10 @@ export default async function Page(props: {
         <CreateCategory />
       </div>
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
+        <FlashFromQuery
+          entity="categoria"
+          clearToPath="/dashboard/categories"
+        />
         <Table query={query} currentPage={currentPage} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">

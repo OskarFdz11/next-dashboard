@@ -4,9 +4,10 @@ import {
   CategoryFormState,
   updateCategory,
 } from "@/app/lib/categories-actions/categories-actions";
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
+import { useRouter } from "next/navigation";
 
 export type CategoryEditFormProps = {
   category: {
@@ -17,12 +18,28 @@ export type CategoryEditFormProps = {
 };
 
 export default function EditCategoryForm({ category }: CategoryEditFormProps) {
-  const initialState: CategoryFormState = { message: null, errors: {} };
+  const router = useRouter();
+  const initialState: CategoryFormState = {
+    message: null,
+    errors: {},
+    success: false,
+  };
   const updateCategoryWithId = updateCategory.bind(null, category.id);
   const [state, formAction] = useActionState(
     updateCategoryWithId,
     initialState
   );
+  const nameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (state.success) {
+      const currentName = nameRef.current?.value || category.name || "";
+      // Redirige a la lista con el flag de "updated"
+      router.replace(
+        `/dashboard/categories?updated=${encodeURIComponent(currentName)}`
+      );
+    }
+  }, [state.success, router, category.name]);
 
   return (
     <form action={formAction}>
@@ -33,6 +50,7 @@ export default function EditCategoryForm({ category }: CategoryEditFormProps) {
             Name
           </label>
           <input
+            ref={nameRef}
             id="name"
             name="name"
             type="text"

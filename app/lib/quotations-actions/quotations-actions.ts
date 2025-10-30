@@ -46,6 +46,7 @@ export type State = {
     status?: string[];
     general?: string[];
   };
+  quotationId?: number;
   message: string;
   success: boolean;
 };
@@ -127,6 +128,7 @@ export const createQuotation = async (prevState: State, formData: FormData) => {
       errors: {},
       message: "Quotation created successfully!",
       success: true,
+      quotationId: quotation.id,
     };
   } catch (error) {
     console.error("Database Error:", error);
@@ -218,6 +220,7 @@ export const updateQuotation = async (
       errors: {},
       message: "Quotation updated successfully!",
       success: true,
+      quotationId: Number(id),
     };
   } catch (error) {
     console.error("Database Error:", error);
@@ -284,7 +287,7 @@ export const duplicateQuotation = async (
     });
 
     revalidatePath("/dashboard/quotations");
-    return result; // Add this return statement
+    return result;
   } catch (error) {
     console.error("Database Error:", error);
     return {
@@ -298,18 +301,10 @@ export const duplicateQuotation = async (
 export async function deleteQuotation(id: string | number) {
   "use server";
   try {
-    await prisma.$transaction(async (tx) => {
-      // Eliminar productos de la cotización primero
-      await tx.quotationProduct.deleteMany({
-        where: { quotationId: Number(id) },
-      });
-
-      // Eliminar la cotización
-      await tx.quotation.delete({
-        where: { id: Number(id) },
-      });
+    await prisma.quotation.update({
+      where: { id: Number(id) },
+      data: { deleted_at: new Date() },
     });
-
     revalidatePath("/dashboard/quotations");
   } catch (error) {
     console.error("Database Error:", error);

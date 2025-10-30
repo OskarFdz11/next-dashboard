@@ -4,104 +4,6 @@ import { formatCurrency } from "../utils";
 import { prisma } from "@/app/lib/prisma";
 import { unstable_noStore as noStore } from "next/cache";
 
-// export async function fetchRevenue() {
-//   try {
-//     const data = await prisma.quotation.findMany();
-
-//     return data;
-//   } catch (error) {
-//     console.error("Database Error:", error);
-//     throw new Error("Failed to fetch revenue data.");
-//   }
-// }
-
-// export async function fetchLatestQuotations() {
-//   try {
-//     const data = await prisma.quotation.findMany({
-//       include: {
-//         customer: true,
-//       },
-//       orderBy: { date: "desc" },
-//     });
-
-//     const latestQuotations = data.map((quotation) => ({
-//       ...quotation,
-//       total: formatCurrency(quotation.total as unknown as number),
-//     }));
-
-//     return latestQuotations;
-//   } catch (error) {
-//     console.error("Database Error:", error);
-//     throw new Error("Failed to fetch revenue data.");
-//   }
-// }
-
-// // export async function fetchLatestInvoices() {
-// //   try {
-// //     const data = await sql<LatestInvoiceRaw[]>`
-// //       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
-// //       FROM invoices
-// //       JOIN customers ON invoices.customer_id = customers.id
-// //       ORDER BY invoices.date DESC
-// //       LIMIT 5`;
-
-// //     const latestInvoices = data.map((invoice) => ({
-// //       ...invoice,
-// //       amount: formatCurrency(invoice.amount),
-// //     }));
-// //     return latestInvoices;
-// //   } catch (error) {
-// //     console.error("Database Error:", error);
-// //     throw new Error("Failed to fetch the latest invoices.");
-// //   }
-// // }
-
-// export async function fetchCardData() {
-//   try {
-//     // You can probably combine these into a single SQL query
-//     // However, we are intentionally splitting them to demonstrate
-//     // how to initialize multiple queries in parallel with JS.
-//     // const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
-//     // const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
-//     // const invoiceStatusPromise = sql`SELECT
-//     //      SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
-//     //      SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
-//     //      FROM invoices`;
-
-//     const [quotationsCount, customer, paid, pending] = await Promise.all([
-//       prisma.quotation.count(),
-//       prisma.customer.count(),
-//       prisma.quotation.aggregate({
-//         _sum: { total: true },
-//         where: { status: "paid" },
-//       }),
-//       prisma.quotation.aggregate({
-//         _sum: { total: true },
-//         where: { status: "pending" },
-//       }),
-//     ]);
-
-//     const numberOfQuotations = Number(quotationsCount ?? "0");
-//     const numberOfCustomers = Number(customer ?? "0");
-//     const totalPaidQuotations = Number(paid._sum.total ?? "0");
-//     const totalPendingQuotations = Number(pending._sum.total ?? "0");
-
-//     return {
-//       numberOfCustomers,
-//       numberOfQuotations,
-//       totalPaidQuotations,
-//       totalPendingQuotations,
-//     };
-//   } catch (error) {
-//     if (error instanceof Error) {
-//       console.error("Database Error:", error.message);
-//     } else {
-//       console.error("Database Error:", error);
-//     }
-//     throw new Error("Failed to fetch card data.");
-//   }
-// }
-
 export async function fetchRevenue() {
   try {
     const data = await prisma.quotation.findMany({
@@ -111,8 +13,9 @@ export async function fetchRevenue() {
         status: true,
       },
       where: {
+        deleted_at: null,
         date: {
-          gte: new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1), // Últimos 12 meses
+          gte: new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1),
         },
       },
       orderBy: { date: "desc" },
@@ -158,6 +61,7 @@ export async function fetchLatestQuotations() {
     const data = await prisma.quotation.findMany({
       orderBy: { date: "desc" },
       take: 5,
+      where: { deleted_at: null },
       include: {
         customer: true,
       },
@@ -183,11 +87,11 @@ export async function fetchCardData() {
       prisma.customer.count(),
       prisma.quotation.aggregate({
         _sum: { total: true },
-        where: { status: "paid" },
+        where: { status: "paid", deleted_at: null },
       }),
       prisma.quotation.aggregate({
         _sum: { total: true },
-        where: { status: "pending" },
+        where: { status: "pending", deleted_at: null },
       }),
     ]);
 
@@ -225,6 +129,7 @@ export async function fetchFilteredQuotations(
   try {
     const filteredQuotations = await prisma.quotation.findMany({
       where: {
+        deleted_at: null,
         OR: [
           { customer: { name: { contains: query, mode: "insensitive" } } },
           { customer: { email: { contains: query, mode: "insensitive" } } },
@@ -266,6 +171,7 @@ export async function fetchQuotationsPages(query: string) {
   const isValidDate = !isNaN(date.getTime());
 
   const orConditions: any[] = [
+    { deleted_at: null },
     { customer: { name: { contains: query, mode: "insensitive" } } },
     { customer: { email: { contains: query, mode: "insensitive" } } },
     { total: { equals: Number(query) || undefined } },
@@ -290,7 +196,7 @@ export async function fetchQuotationsPages(query: string) {
 export async function fetchQuotationById(id: string | number) {
   try {
     const quotation = await prisma.quotation.findUnique({
-      where: { id: Number(id) },
+      where: { id: Number(id), deleted_at: null },
       include: {
         customer: {
           select: {
@@ -351,7 +257,7 @@ export async function fetchQuotationById(id: string | number) {
 export async function getQuotationDataForPDF(quotationId: number) {
   try {
     const quotation = await prisma.quotation.findUnique({
-      where: { id: quotationId },
+      where: { id: quotationId, deleted_at: null },
       include: {
         customer: true,
         billingDetails: true,

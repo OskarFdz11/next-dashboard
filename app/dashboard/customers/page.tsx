@@ -7,6 +7,7 @@ import Search from "@/app/ui/search";
 import { InvoicesTableSkeleton } from "@/app/ui/skeletons";
 import { Metadata } from "next";
 import { Suspense } from "react";
+import FlashFromQuery from "@/app/ui/flash-from-query";
 
 export const metadata: Metadata = {
   title: "Customers",
@@ -32,6 +33,7 @@ export default async function Page(props: {
         <CreateCustomer />
       </div>
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
+        <FlashFromQuery entity="cliente" clearToPath="/dashboard/customers" />
         <Table query={query} currentPage={currentPage} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">

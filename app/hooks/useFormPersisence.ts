@@ -1,58 +1,64 @@
-// app/hooks/useFormPersistence.ts
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 export function useFormPersistence<T>(
   key: string,
   initialData: T,
   dependencies: any[] = []
 ) {
+  const initialDataRef = useRef(initialData);
   const [data, setData] = useState<T>(initialData);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Cargar datos del localStorage al montar
+  useEffect(() => {
+    initialDataRef.current = initialData;
+  }, [initialData]);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedData = localStorage.getItem(key);
       if (savedData) {
         try {
-          const parsedData = JSON.parse(savedData);
-          setData({ ...initialData, ...parsedData });
+          const parsed = JSON.parse(savedData);
+          setData({ ...initialDataRef.current, ...parsed });
         } catch (error) {
           console.error("Error parsing saved form data:", error);
+          localStorage.removeItem(key);
+          setData(initialDataRef.current);
         }
+      } else {
+        setData(initialDataRef.current);
       }
       setIsLoaded(true);
     }
   }, [key]);
 
-  // Guardar datos en localStorage cuando cambian
   useEffect(() => {
-    if (isLoaded && typeof window !== "undefined") {
-      localStorage.setItem(key, JSON.stringify(data));
-    }
+    if (!isLoaded || typeof window === "undefined") return;
+    localStorage.setItem(key, JSON.stringify(data));
   }, [data, key, isLoaded]);
 
-  // Limpiar localStorage cuando se especifican dependencias
   useEffect(() => {
-    if (dependencies.length > 0) {
+    if (!isLoaded || dependencies.length === 0) return;
+    if (typeof window !== "undefined") {
       localStorage.removeItem(key);
-      setData(initialData);
     }
-  }, dependencies);
+    setData(initialDataRef.current);
+  }, [isLoaded, key, ...dependencies]);
 
-  const updateData = (updates: Partial<T>) => {
+  const updateData = useCallback((updates: Partial<T>) => {
     setData((prev) => ({ ...prev, ...updates }));
-  };
+  }, []);
 
-  const clearData = () => {
-    localStorage.removeItem(key);
-    setData(initialData);
-  };
+  const clearData = useCallback(() => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(key);
+    }
+    setData(initialDataRef.current);
+  }, [key]);
 
-  return {
-    data,
-    updateData,
-    clearData,
-    isLoaded,
-  };
+  const resetToInitial = useCallback(() => {
+    setData(initialDataRef.current);
+  }, []);
+
+  return { data, updateData, clearData, resetToInitial, isLoaded };
 }

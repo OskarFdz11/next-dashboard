@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
 
@@ -11,6 +11,7 @@ import {
 import { CldImage, CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { ProductField } from "@/app/lib/definitions";
+import { useRouter } from "next/navigation";
 
 export default function EditProductForm({
   product,
@@ -26,6 +27,18 @@ export default function EditProductForm({
     product.image_url || ""
   );
   const [publicId, setPublicId] = useState<string | null>("");
+  const router = useRouter();
+  const nameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (state.success) {
+      const currentName = nameRef.current?.value || product.name || "";
+      // Redirige a la lista con el flag de "updated"
+      router.replace(
+        `/dashboard/products?updated=${encodeURIComponent(currentName)}`
+      );
+    }
+  }, [state.success, router, product.name]);
 
   return (
     <form action={formAction}>
@@ -36,6 +49,7 @@ export default function EditProductForm({
             Name
           </label>
           <input
+            ref={nameRef}
             id="name"
             name="name"
             type="text"

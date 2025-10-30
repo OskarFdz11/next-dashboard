@@ -7,6 +7,7 @@ export async function fetchProducts() {
   noStore();
   try {
     const products = await prisma.product.findMany({
+      where: { deleted_at: null },
       select: {
         id: true,
         name: true,
@@ -17,7 +18,7 @@ export async function fetchProducts() {
         brand: true,
         category: { select: { name: true, id: true } },
       },
-      orderBy: { name: "asc" },
+      orderBy: { id: "asc" },
     });
     return products.map((product) => ({
       ...product,
@@ -35,7 +36,7 @@ export async function fetchProducts() {
 export async function fetchProductById(id: string) {
   try {
     const product = await prisma.product.findUnique({
-      where: { id: Number(id) },
+      where: { id: Number(id), deleted_at: null },
       select: {
         id: true,
         name: true,
@@ -70,6 +71,7 @@ export async function fetchFilteredProducts(
     const [products, totalCount] = await Promise.all([
       prisma.product.findMany({
         where: {
+          deleted_at: null,
           OR: [
             { name: { contains: query, mode: "insensitive" } },
             { description: { contains: query, mode: "insensitive" } },
@@ -91,6 +93,7 @@ export async function fetchFilteredProducts(
       }),
       prisma.product.count({
         where: {
+          deleted_at: null,
           OR: [
             { name: { contains: query, mode: "insensitive" } },
             { description: { contains: query, mode: "insensitive" } },

@@ -4,9 +4,10 @@ import {
   BillingDetailsFormState,
   updateBillingDetails,
 } from "@/app/lib/billing-details-actions/billing-details-actions";
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
+import { useRouter } from "next/navigation";
 
 export type BillingDetailsEditFormProps = {
   billingDetails: {
@@ -33,7 +34,12 @@ export type BillingDetailsEditFormProps = {
 export default function EditBillingDetailsForm({
   billingDetails,
 }: BillingDetailsEditFormProps) {
-  const initialState: BillingDetailsFormState = { message: null, errors: {} };
+  const router = useRouter();
+  const initialState: BillingDetailsFormState = {
+    message: null,
+    errors: {},
+    success: false,
+  };
   const updateBillingDetailsWithId = updateBillingDetails.bind(
     null,
     billingDetails.id
@@ -42,6 +48,18 @@ export default function EditBillingDetailsForm({
     updateBillingDetailsWithId,
     initialState
   );
+
+  const nameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (state.success) {
+      const currentName = nameRef.current?.value || billingDetails.name || "";
+
+      router.replace(
+        `/dashboard/billing-details?updated=${encodeURIComponent(currentName)}`
+      );
+    }
+  }, [state.success, router, billingDetails.name]);
 
   return (
     <form action={formAction}>
@@ -197,7 +215,32 @@ export default function EditBillingDetailsForm({
         </div>
 
         {/* Banking Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {/* CardNumber */}
+          <div>
+            <label
+              htmlFor="cardNumber"
+              className="mb-2 block text-sm font-medium"
+            >
+              Card Number
+            </label>
+            <input
+              id="cardNumber"
+              name="cardNumber"
+              type="text"
+              placeholder="Enter Card Number"
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+            <div id="cardNumber-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.cardNumber &&
+                state.errors.cardNumber.map((error: string) => (
+                  <p className="mt-2 text-sm text-red-500" key={error}>
+                    {error}
+                  </p>
+                ))}
+            </div>
+          </div>
+
           {/* CLABE */}
           <div>
             <label htmlFor="clabe" className="mb-2 block text-sm font-medium">

@@ -7,6 +7,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import { fetchFilteredBillingDetails } from "@/app/lib/billing-details-actions/billing-details-data";
 import { CreateBillingDetails } from "@/app/ui/billing-details/buttons";
+import FlashFromQuery from "@/app/ui/flash-from-query";
 
 export const metadata: Metadata = {
   title: "Billing Details",
@@ -32,6 +33,10 @@ export default async function Page(props: {
         <CreateBillingDetails />
       </div>
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
+        <FlashFromQuery
+          entity="detalles de pago"
+          clearToPath="/dashboard/billing-details"
+        />
         <Table query={query} currentPage={currentPage} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">

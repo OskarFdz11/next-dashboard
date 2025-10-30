@@ -7,6 +7,7 @@ import { InvoicesTableSkeleton } from "@/app/ui/skeletons";
 import { Suspense } from "react";
 import { fetchQuotationsPages } from "@/app/lib/quotations-actions/quotations-data";
 import { Metadata } from "next";
+import FlashFromQuery from "@/app/ui/flash-from-query";
 
 export const metadata: Metadata = {
   title: "Quotations",
@@ -33,6 +34,10 @@ export default async function Page(props: {
         <CreateQuotation />
       </div>
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
+        <FlashFromQuery
+          entity="cotización"
+          clearToPath="/dashboard/quotations"
+        />
         <QuotationsTable query={query} currentPage={currentPage} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">

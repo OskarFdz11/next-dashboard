@@ -7,6 +7,7 @@ export async function fetchBillingDetails() {
   noStore();
   try {
     const billingDetails = await prisma.billingDetails.findMany({
+      where: { deleted_at: null },
       include: {
         address: true, // Incluir todos los campos de la dirección
         quotations: {
@@ -20,7 +21,7 @@ export async function fetchBillingDetails() {
           select: { quotations: true },
         },
       },
-      orderBy: { name: "asc" }, // Ordenar por nombre en lugar de id
+      orderBy: { id: "asc" },
     });
 
     // Convertir phone BigInt a string para serialización
@@ -38,7 +39,7 @@ export async function fetchBillingDetailById(id: string) {
   noStore();
   try {
     const billingDetail = await prisma.billingDetails.findUnique({
-      where: { id: Number(id) },
+      where: { id: Number(id), deleted_at: null },
       include: {
         address: true, // Incluir la dirección completa
         quotations: {
@@ -75,6 +76,7 @@ export async function fetchFilteredBillingDetails(
   try {
     const whereCondition = {
       OR: [
+        { deleted_at: null },
         { name: { contains: query, mode: "insensitive" as const } },
         { lastname: { contains: query, mode: "insensitive" as const } },
         { company: { contains: query, mode: "insensitive" as const } },
@@ -154,6 +156,7 @@ export async function fetchBillingDetailsField() {
   noStore();
   try {
     const billingDetails = await prisma.billingDetails.findMany({
+      where: { deleted_at: null },
       select: {
         id: true,
         name: true,

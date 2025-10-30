@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   CustomerField,
@@ -50,7 +50,17 @@ export default function EditQuotationForm({
     updateQuotationWithId,
     initialState
   );
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  useEffect(() => {
+    if (state.success) {
+      // Ideal: que la acción devuelva quotationId
+      const id = state.quotationId;
+      const label = id ? `#${id}` : "";
+      router.replace(
+        `/dashboard/quotations?updated=${encodeURIComponent(label)}`
+      );
+    }
+  }, [state.success, router]);
 
   // Initialize products from existing quotation
   const [selectedProducts, setSelectedProducts] = useState<QuotationProduct[]>(
@@ -61,18 +71,6 @@ export default function EditQuotationForm({
     }))
   );
   const [iva, setIva] = useState(quotation.iva);
-
-  // Show success modal when quotation is updated successfully
-  useEffect(() => {
-    if (state.message === "Quotation updated successfully!") {
-      setShowSuccessModal(true);
-    }
-  }, [state.message]);
-
-  const handleSuccessModalClose = () => {
-    router.push("/dashboard/quotations");
-    setShowSuccessModal(false);
-  };
 
   const addProduct = () => {
     setSelectedProducts([
@@ -438,13 +436,6 @@ export default function EditQuotationForm({
           <Button type="submit">Update Quotation</Button>
         </div>
       </form>
-
-      <SuccessModal
-        isOpen={showSuccessModal}
-        onClose={handleSuccessModalClose}
-        title="¡Cotización actualizada exitosamente!"
-        message="Redirigiendo a la lista de cotizaciones..."
-      />
     </>
   );
 }

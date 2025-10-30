@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   CustomerField,
@@ -46,24 +46,22 @@ export default function CreateQuotationForm({
     createQuotation,
     initialState
   );
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [selectedProducts, setSelectedProducts] = useState<QuotationProduct[]>([
     { productId: "", quantity: 1, price: 0 },
   ]);
   const [iva, setIva] = useState(false);
 
-  // Show success modal when quotation is created successfully
   useEffect(() => {
-    if (state.message === "Quotation created successfully!") {
-      setShowSuccessModal(true);
+    if (state.success) {
+      // Ideal: que la acción devuelva quotationId
+      const id = state.quotationId;
+      const label = id ? `#${id}` : "";
+      router.replace(
+        `/dashboard/quotations?created=${encodeURIComponent(label)}`
+      );
     }
-  }, [state.message, state.success]);
-
-  const handleSuccessModalClose = () => {
-    setShowSuccessModal(false);
-    router.push("/dashboard/quotations");
-  };
+  }, [state.success, router]);
 
   const addProduct = () => {
     setSelectedProducts([
@@ -427,13 +425,6 @@ export default function CreateQuotationForm({
           <Button type="submit">Create Quotation</Button>
         </div>
       </form>
-
-      <SuccessModal
-        isOpen={showSuccessModal}
-        onClose={handleSuccessModalClose}
-        title="¡Cotización creada exitosamente!"
-        message="Redirigiendo a la lista de cotizaciones..."
-      />
     </>
   );
 }

@@ -7,6 +7,8 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import { fetchFilteredProducts } from "@/app/lib/products-actions/products-data";
 import { CreateProduct } from "@/app/ui/products/buttons";
+import ProductsFlash from "@/app/ui/products/products-flash";
+import FlashFromQuery from "@/app/ui/flash-from-query";
 
 export const metadata: Metadata = {
   title: "Products",
@@ -32,6 +34,7 @@ export default async function Page(props: {
         <CreateProduct />
       </div>
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
+        <FlashFromQuery entity="producto" clearToPath="/dashboard/products" />
         <Table query={query} currentPage={currentPage} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">

@@ -107,6 +107,9 @@ export type ProductField = {
   quantity: number;
   brand: string;
   category: CategoryField;
+  deleted_at?: Date | null;
+  updated_at?: Date | null;
+  created_at?: Date | null;
   quotationProducts?: QuotationProductField[];
 };
 

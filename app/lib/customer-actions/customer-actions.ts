@@ -7,6 +7,7 @@ import { prisma } from "../prisma";
 
 export type CustomerFormState = {
   message: string | null;
+  success: boolean;
   errors: {
     name?: string[];
     lastname?: string[];
@@ -52,6 +53,7 @@ export const createCustomer = async (
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing or invalid fields. Failed to create customer.",
+      success: false,
     };
   }
 
@@ -72,13 +74,18 @@ export const createCustomer = async (
     revalidatePath("/dashboard/quotations");
     revalidatePath("/dashboard/quotations/create");
     revalidatePath("/dashboard/quotations/[id]/edit", "page");
+    return {
+      message: "Customer created successfully.",
+      errors: {},
+      success: true,
+    };
   } catch (error) {
     return {
       message: "Database Error: Failed to create customer.",
       errors: { ...prevState.errors },
+      success: false,
     };
   }
-  redirect("/dashboard/customers");
 };
 
 export const updateCustomer = async (
@@ -99,6 +106,7 @@ export const updateCustomer = async (
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing or invalid fields. Failed to update customer.",
+      success: false,
     };
   }
 
@@ -120,23 +128,31 @@ export const updateCustomer = async (
     revalidatePath("/dashboard/quotations");
     revalidatePath("/dashboard/quotations/create");
     revalidatePath("/dashboard/quotations/[id]/edit", "page");
+    return {
+      message: "Customer updated successfully.",
+      errors: {},
+      success: true,
+    };
   } catch (error) {
     return {
       message: "Database Error: Failed to update customer.",
       errors: { ...prevState.errors },
+      success: false,
     };
   }
-
-  redirect("/dashboard/customers");
 };
 
 export const deleteCustomer = async (id: number | string) => {
   "use server";
   try {
-    await prisma.customer.delete({
+    await prisma.customer.update({
       where: { id: Number(id) },
+      data: {
+        deleted_at: new Date(),
+      },
     });
     revalidatePath("/dashboard/customers");
+    revalidatePath("/dashboard/quotations");
   } catch (error) {
     console.error("Database Error:", error);
   }

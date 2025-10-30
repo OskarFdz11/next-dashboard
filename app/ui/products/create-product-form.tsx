@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useState, useEffect, useCallback } from "react";
 import { useFormPersistence } from "@/app/hooks/useFormPersisence";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
@@ -12,7 +12,8 @@ import { CategoryField, ProductField } from "@/app/lib/definitions";
 import { CldImage, CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { useNotification } from "@/app/hooks/useNotifications";
-import NotificationModal from "../notification-modal";
+import NotificationModal from "@/app/ui/notification-modal";
+import { useRouter } from "next/navigation";
 
 export default function CreateProductForm({
   products,
@@ -21,7 +22,12 @@ export default function CreateProductForm({
   products: ProductField[];
   categories: CategoryField[];
 }) {
-  const initialState: ProductFormState = { message: null, errors: {} };
+  const router = useRouter();
+  const initialState: ProductFormState = {
+    message: null,
+    success: false,
+    errors: {},
+  };
   const [state, formAction] = useActionState(createProduct, initialState);
   const [imageUrl, setImageUrl] = useState<string | null>("");
   const [publicId, setPublicId] = useState<string | null>("");
@@ -51,20 +57,32 @@ export default function CreateProductForm({
     imageUrl: "",
   });
 
+  const clearCompleteForm = useCallback(() => {
+    clearData();
+    setImageUrl("");
+    setPublicId("");
+  }, [clearData]);
+
   useEffect(() => {
-    if (state.message === "Product created successfully") {
-      clearData();
-      showSuccess(
-        "Producto creado exitosamente",
-        `El producto "${formData.name}" ha sido creado correctamente.`
+    if (state.success) {
+      const productName = formData.name || "";
+      // limpiar persistencia antes de navegar (para que no queden valores al volver)
+      clearCompleteForm();
+      // redirigir a la tabla y pasar el nombre para mostrar el modal allí
+      router.replace(
+        `/dashboard/products?created=${encodeURIComponent(productName)}`
       );
-    } else if (
-      state.message &&
-      state.message !== "Product created successfully"
-    ) {
+    } else if (state.message && state.success === false) {
       showError("Error al crear producto", state.message);
     }
-  }, [state.message]);
+  }, [state.success, state.message]);
+
+  const handleCloseModal = () => {
+    hideNotification();
+    if (notification.type === "success") {
+      router.push("/dashboard/products");
+    }
+  };
 
   const handleSubmit = async (formDataObj: FormData) => {
     // Agregar datos persistidos al FormData
@@ -74,7 +92,9 @@ export default function CreateProductForm({
     formDataObj.set("price", formData.price);
     formDataObj.set("brand", formData.brand);
     formDataObj.set("quantity", formData.quantity);
-    formDataObj.set("imageUrl", formData.imageUrl ?? "");
+
+    const finalImageUrl = imageUrl || formData.imageUrl || "";
+    formDataObj.set("imageUrl", finalImageUrl);
 
     await formAction(formDataObj);
   };
@@ -84,6 +104,20 @@ export default function CreateProductForm({
     setImageUrl("");
     setPublicId("");
   };
+
+  useEffect(() => {
+    // Solo limpiar cuando el componente se monta y no hay datos válidos
+    if (isLoaded) {
+      const isEmpty =
+        !formData.name &&
+        !formData.description &&
+        !formData.price &&
+        !formData.brand;
+      if (isEmpty) {
+        clearCompleteForm();
+      }
+    }
+  }, [isLoaded]);
 
   if (!isLoaded) {
     return (
@@ -356,7 +390,7 @@ export default function CreateProductForm({
 
       <NotificationModal
         isOpen={notification.isOpen}
-        onClose={hideNotification}
+        onClose={handleCloseModal}
         type={notification.type}
         title={notification.title}
         message={notification.message}

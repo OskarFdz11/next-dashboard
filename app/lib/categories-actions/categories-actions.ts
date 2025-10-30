@@ -7,6 +7,7 @@ import { prisma } from "../prisma";
 
 export type CategoryFormState = {
   message: string | null;
+  success: boolean;
   errors: {
     name?: string[];
     description?: string[];
@@ -36,6 +37,7 @@ export const createCategory = async (
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing or invalid fields. Failed to create category.",
+      success: false,
     };
   }
 
@@ -52,15 +54,18 @@ export const createCategory = async (
     revalidatePath("/dashboard/products");
     revalidatePath("/dashboard/products/create");
     revalidatePath("/dashboard/products/[id]/edit", "page");
+    return {
+      message: "Category created successfully.",
+      success: true,
+      errors: {},
+    };
   } catch (error) {
     return {
       message: "Database Error: Failed to create category.",
       errors: { ...prevState.errors },
+      success: false,
     };
   }
-
-  revalidatePath("/dashboard/categories");
-  redirect("/dashboard/categories");
 };
 
 export const updateCategory = async (
@@ -77,6 +82,7 @@ export const updateCategory = async (
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing or invalid fields. Failed to update category.",
+      success: false,
     };
   }
 
@@ -94,23 +100,31 @@ export const updateCategory = async (
     revalidatePath("/dashboard/products");
     revalidatePath("/dashboard/products/create");
     revalidatePath("/dashboard/products/[id]/edit", "page");
+    return {
+      message: "Category updated successfully.",
+      success: true,
+      errors: {},
+    };
   } catch (error) {
     return {
       message: "Database Error: Failed to update category.",
       errors: { ...prevState.errors },
+      success: false,
     };
   }
-
-  revalidatePath("/dashboard/categories");
-  redirect("/dashboard/categories");
 };
 
 export const deleteCategory = async (id: number | string) => {
   try {
-    await prisma.category.delete({
+    await prisma.category.update({
       where: { id: Number(id) },
+      data: {
+        deleted_at: new Date(),
+      },
     });
     revalidatePath("/dashboard/categories");
+    revalidatePath("/dashboard/quotations");
+    revalidatePath("/dashboard/products");
   } catch (error) {
     console.error("Database Error:", error);
   }

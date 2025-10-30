@@ -7,11 +7,13 @@ import { prisma } from "../prisma";
 
 export type BillingDetailsFormState = {
   message: string | null;
+  success: boolean;
   errors: {
     name?: string[];
     lastname?: string[];
     company?: string[];
     rfc?: string[];
+    cardNumber?: string[];
     clabe?: string[];
     checkAccount?: string[];
     phone?: string[];
@@ -28,6 +30,7 @@ const CreateBillingDetails = z.object({
   lastname: z.string().min(1, "Lastname is required."),
   company: z.string().min(1, "Company is required."),
   rfc: z.string().min(1, "RFC is required."),
+  cardNumber: z.string().min(1, "Card Number is required."),
   clabe: z.string().min(1, "CLABE is required."),
   checkAccount: z.string().min(1, "Check Account is required."),
   phone: z.coerce.bigint({ invalid_type_error: "Phone must be a number." }),
@@ -45,6 +48,7 @@ const UpdateBillingDetails = z.object({
   lastname: z.string().min(1, "Lastname is required."),
   company: z.string().min(1, "Company is required."),
   rfc: z.string().min(1, "RFC is required."),
+  cardNumber: z.string().min(1, "Card Number is required."),
   clabe: z.string().min(1, "CLABE is required."),
   checkAccount: z.string().min(1, "Check Account is required."),
   phone: z.coerce.bigint({ invalid_type_error: "Phone must be a number." }),
@@ -66,6 +70,7 @@ export const createBillingDetails = async (
     lastname: formData.get("lastname"),
     company: formData.get("company"),
     rfc: formData.get("rfc"),
+    cardNumber: formData.get("cardNumber"),
     clabe: formData.get("clabe"),
     checkAccount: formData.get("checkAccount"),
     phone: formData.get("phone"),
@@ -81,6 +86,7 @@ export const createBillingDetails = async (
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing or invalid fields. Failed to create billing details.",
+      success: false,
     };
   }
 
@@ -89,6 +95,7 @@ export const createBillingDetails = async (
     lastname,
     company,
     rfc,
+    cardNumber,
     clabe,
     checkAccount,
     phone,
@@ -107,6 +114,7 @@ export const createBillingDetails = async (
         lastname,
         company,
         rfc,
+        cardNumber,
         clabe,
         checkAccount,
         phone,
@@ -126,15 +134,19 @@ export const createBillingDetails = async (
     revalidatePath("/dashboard/quotations");
     revalidatePath("/dashboard/quotations/create");
     revalidatePath("/dashboard/quotations/[id]/edit", "page");
+    return {
+      message: "Billing details created successfully",
+      errors: {},
+      success: true,
+    };
   } catch (error) {
     console.error("Database Error:", error);
     return {
       message: "Database Error: Failed to create billing details.",
       errors: { ...prevState.errors },
+      success: false,
     };
   }
-
-  redirect("/dashboard/billing-details");
 };
 
 export const updateBillingDetails = async (
@@ -147,6 +159,7 @@ export const updateBillingDetails = async (
     lastname: formData.get("lastname"),
     company: formData.get("company"),
     rfc: formData.get("rfc"),
+    cardNumber: formData.get("cardNumber"),
     clabe: formData.get("clabe"),
     checkAccount: formData.get("checkAccount"),
     phone: formData.get("phone"),
@@ -162,6 +175,7 @@ export const updateBillingDetails = async (
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing or invalid fields. Failed to update billing details.",
+      success: false,
     };
   }
 
@@ -170,6 +184,7 @@ export const updateBillingDetails = async (
     lastname,
     company,
     rfc,
+    cardNumber,
     clabe,
     checkAccount,
     phone,
@@ -192,6 +207,7 @@ export const updateBillingDetails = async (
       return {
         message: "Billing details not found.",
         errors: { ...prevState.errors },
+        success: false,
       };
     }
 
@@ -203,6 +219,7 @@ export const updateBillingDetails = async (
         lastname,
         company,
         rfc,
+        cardNumber,
         clabe,
         checkAccount,
         phone,
@@ -222,44 +239,32 @@ export const updateBillingDetails = async (
     revalidatePath("/dashboard/quotations");
     revalidatePath("/dashboard/quotations/create");
     revalidatePath("/dashboard/quotations/[id]/edit", "page");
+    return {
+      message: "Billing details updated successfully",
+      errors: {},
+      success: true,
+    };
   } catch (error) {
     console.error("Database Error:", error);
     return {
       message: "Database Error: Failed to update billing details.",
       errors: { ...prevState.errors },
+      success: false,
     };
   }
-  redirect("/dashboard/billing-details");
 };
 
 export const deleteBillingDetails = async (id: number | string) => {
   try {
-    // Primero obtenemos los billing details para obtener el addressId
-    const billingDetails = await prisma.billingDetails.findUnique({
+    await prisma.billingDetails.update({
       where: { id: Number(id) },
+      data: {
+        deleted_at: new Date(),
+      },
     });
-
-    if (!billingDetails) {
-      throw new Error("Billing details not found");
-    }
-
-    // Eliminar billing details (esto también eliminará la dirección si no tiene otras referencias)
-    await prisma.billingDetails.delete({
-      where: { id: Number(id) },
-    });
-
-    // Eliminar la dirección asociada si no está siendo usada por otros billing details
-    const addressUsageCount = await prisma.billingDetails.count({
-      where: { addressId: billingDetails.addressId },
-    });
-
-    if (addressUsageCount === 0) {
-      await prisma.address.delete({
-        where: { id: billingDetails.addressId },
-      });
-    }
 
     revalidatePath("/dashboard/billing-details");
+    revalidatePath("/dashboard/quotations");
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to delete billing details.");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
 import {
@@ -8,14 +8,35 @@ import {
   CustomerFormState,
 } from "@/app/lib/customer-actions/customer-actions";
 import { CustomerField } from "@/app/lib/definitions";
+import { useRouter } from "next/navigation";
 
 export default function CreateCustomerForm({
   customers,
 }: {
   customers: CustomerField[];
 }) {
-  const initialState: CustomerFormState = { message: null, errors: {} };
-  const [state, formAction] = useActionState(createCustomer, initialState);
+  const router = useRouter();
+  const initialState: CustomerFormState = {
+    message: null,
+    errors: {},
+    success: false,
+  };
+  const [state, formAction] = useActionState<CustomerFormState, FormData>(
+    createCustomer,
+    initialState
+  );
+
+  const nameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (state.success) {
+      const currentName = nameRef.current?.value || customers[0]?.name || "";
+      // Redirige a la lista con el flag de "created"
+      router.replace(
+        `/dashboard/customers?created=${encodeURIComponent(currentName)}`
+      );
+    }
+  }, [state.success, router, customers]);
 
   return (
     <form action={formAction}>
@@ -26,6 +47,7 @@ export default function CreateCustomerForm({
             Name
           </label>
           <input
+            ref={nameRef}
             id="name"
             name="name"
             type="text"

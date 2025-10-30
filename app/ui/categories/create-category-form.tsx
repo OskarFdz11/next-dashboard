@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
 import {
@@ -8,14 +8,31 @@ import {
   CategoryFormState,
 } from "@/app/lib/categories-actions/categories-actions";
 import { CategoryField } from "@/app/lib/definitions";
+import { useRouter } from "next/navigation";
 
 export default function CreateCategoryForm({
   categories,
 }: {
   categories: CategoryField[];
 }) {
-  const initialState: CategoryFormState = { message: null, errors: {} };
+  const router = useRouter();
+  const initialState: CategoryFormState = {
+    message: null,
+    errors: {},
+    success: false,
+  };
   const [state, formAction] = useActionState(createCategory, initialState);
+  const nameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (state.success) {
+      const currentName = nameRef.current?.value || categories[0]?.name || "";
+      // Redirige a la lista con el flag de "created"
+      router.replace(
+        `/dashboard/categories?created=${encodeURIComponent(currentName)}`
+      );
+    }
+  }, [state.success, router, categories]);
 
   return (
     <form action={formAction}>
@@ -26,6 +43,7 @@ export default function CreateCategoryForm({
             Name
           </label>
           <input
+            ref={nameRef}
             id="name"
             name="name"
             type="text"

@@ -8,6 +8,7 @@ export async function fetchCustomers() {
   noStore();
   try {
     const customers = await prisma.customer.findMany({
+      where: { deleted_at: null },
       select: {
         id: true,
         name: true,
@@ -31,7 +32,7 @@ export async function fetchCustomers() {
 export async function fetchCustomerById(id: string) {
   try {
     const customer = await prisma.customer.findUnique({
-      where: { id: Number(id) },
+      where: { id: Number(id), deleted_at: null },
     });
     if (!customer) return null;
     return {
@@ -53,6 +54,7 @@ export async function fetchFilteredCustomers(
       prisma.customer.findMany({
         where: {
           OR: [
+            { deleted_at: null },
             { name: { contains: query, mode: "insensitive" } },
             { lastname: { contains: query, mode: "insensitive" } },
             { email: { contains: query, mode: "insensitive" } },

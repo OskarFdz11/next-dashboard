@@ -6,8 +6,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "../prisma";
 
 export type ProductFormState = {
-  message: string | null;
-  errors: {
+  errors?: {
     name?: string[];
     description?: string[];
     price?: string[];
@@ -16,6 +15,8 @@ export type ProductFormState = {
     brand?: string[];
     category?: string[];
   };
+  message?: string | null;
+  success?: boolean;
 };
 
 const CreateProduct = z.object({
@@ -81,16 +82,19 @@ export const createProduct = async (
     revalidatePath("/dashboard/products");
     revalidatePath("/dashboard/quotations");
     revalidatePath("/dashboard/quotations/create");
-    revalidatePath("/dashboard/quotations/[id]/edit", "page");
+    return {
+      message: "Product created successfully",
+      errors: {},
+      success: true,
+    };
   } catch (error) {
+    console.error("Database Error:", error);
     return {
       message: "Database Error: Failed to create product.",
       errors: { ...prevState.errors },
+      success: false,
     };
   }
-
-  revalidatePath("/dashboard/products");
-  redirect("/dashboard/products?success=product-created");
 };
 
 export const updateProduct = async (
@@ -135,24 +139,35 @@ export const updateProduct = async (
     revalidatePath("/dashboard/quotations");
     revalidatePath("/dashboard/quotations/create");
     revalidatePath("/dashboard/quotations/[id]/edit", "page");
+    return {
+      message: "Product updated successfully",
+      errors: {},
+      success: true,
+    };
   } catch (error) {
     return {
       message: "Database Error: Failed to update product.",
       errors: { ...prevState.errors },
+      success: false,
     };
   }
-
-  revalidatePath("/dashboard/products");
-  redirect("/dashboard/products");
 };
 
 export const deleteProduct = async (id: number | string) => {
   try {
-    await prisma.product.delete({
+    // Soft delete: marcar como eliminado en lugar de eliminar físicamente
+    await prisma.product.update({
       where: { id: Number(id) },
+      data: {
+        deleted_at: new Date(), // Marcar como eliminado
+      },
     });
+
     revalidatePath("/dashboard/products");
+    revalidatePath("/dashboard/quotations");
+    revalidatePath("/dashboard/quotations/create");
   } catch (error) {
     console.error("Database Error:", error);
+    throw new Error("Failed to delete product");
   }
 };

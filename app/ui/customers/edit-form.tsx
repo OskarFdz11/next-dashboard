@@ -4,9 +4,10 @@ import {
   CustomerFormState,
   updateCustomer,
 } from "@/app/lib/customer-actions/customer-actions";
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
+import { useRouter } from "next/navigation";
 
 export type CustomerEditFormProps = {
   customer: {
@@ -21,12 +22,28 @@ export type CustomerEditFormProps = {
 };
 
 export default function EditCustomerForm({ customer }: CustomerEditFormProps) {
-  const initialState: CustomerFormState = { message: null, errors: {} };
+  const router = useRouter();
+  const initialState: CustomerFormState = {
+    message: null,
+    errors: {},
+    success: false,
+  };
   const updateCustomerWithId = updateCustomer.bind(null, customer.id);
   const [state, formAction] = useActionState(
     updateCustomerWithId,
     initialState
   );
+
+  const nameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (state.success) {
+      const currentName = nameRef.current?.value || customer.name || "";
+      router.replace(
+        `/dashboard/customers?updated=${encodeURIComponent(currentName)}`
+      );
+    }
+  }, [state.success, router, customer]);
 
   return (
     <form action={formAction}>
@@ -37,6 +54,7 @@ export default function EditCustomerForm({ customer }: CustomerEditFormProps) {
             Name
           </label>
           <input
+            ref={nameRef}
             id="name"
             name="name"
             type="text"

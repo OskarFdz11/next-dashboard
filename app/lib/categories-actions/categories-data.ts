@@ -7,8 +7,9 @@ export async function fetchCategories() {
   noStore();
   try {
     const categories = await prisma.category.findMany({
+      where: { deleted_at: null },
       select: { id: true, name: true, description: true },
-      orderBy: { name: "asc" },
+      orderBy: { id: "asc" },
     });
     return categories;
   } catch (err) {
@@ -20,7 +21,7 @@ export async function fetchCategories() {
 export async function fetchCategoryById(id: string) {
   try {
     const category = await prisma.category.findUnique({
-      where: { id: Number(id) },
+      where: { id: Number(id), deleted_at: null },
     });
     if (!category) return null;
     return {
@@ -42,6 +43,7 @@ export async function fetchFilteredCategories(
       prisma.category.findMany({
         where: {
           OR: [
+            { deleted_at: null },
             { name: { contains: query, mode: "insensitive" } },
             { description: { contains: query, mode: "insensitive" } },
           ],

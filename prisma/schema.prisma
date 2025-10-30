@@ -19,6 +19,10 @@ model User {
   name  String
   email String @unique
   password String
+
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? 
 }
 
 model Customer {
@@ -29,6 +33,11 @@ model Customer {
   company   String
   rfc       String
   phone     BigInt
+
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? 
+
   quotations Quotation[]
 }
 
@@ -36,6 +45,11 @@ model Category {
   id          Int       @id @default(autoincrement())
   name        String
   description String
+
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? 
+
   products    Product[]
 }
 
@@ -49,6 +63,10 @@ model Product {
   price       Decimal
   brand       String
   category    Category  @relation(fields: [categoryId], references: [id])
+
+   created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? 
   quotationProducts QuotationProduct[]
 }
 
@@ -70,10 +88,15 @@ model BillingDetails {
   rfc        String
   clabe      String
   checkAccount String
+  cardNumber String
   addressId  Int
   phone      BigInt
   email      String
   address    Address  @relation(fields: [addressId], references: [id])
+
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? 
   quotations Quotation[]
 }
 
@@ -89,6 +112,10 @@ model Quotation {
   status           String
   customer         Customer  @relation(fields: [customerId], references: [id])
   billingDetails   BillingDetails @relation(fields: [billingDetailsId], references: [id])
+
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? 
   products         QuotationProduct[]
 }
 
