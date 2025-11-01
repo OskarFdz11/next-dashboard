@@ -65,7 +65,7 @@ export default async function CategoriesTable({
                           </p>
                         </div>
                         {/* Información */}
-                        <div className="space-y-2">
+                        <div className="space-y-2 mt-2">
                           <p className="font-medium text-gray-900">
                             {category.name}
                           </p>

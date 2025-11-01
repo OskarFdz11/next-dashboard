@@ -14,17 +14,16 @@ export default function SideNav() {
 
   // Server Action para logout (usado por ConfirmLogoutButton)
   const signOutHandler = async () => {
-    "use server";
     await signOut({ redirectTo: "/" });
   };
 
   return (
     <>
       {/* Topbar móvil con logo y botón de menú */}
-      <div className="md:hidden sticky top-0 z-40 bg-white border-b">
-        <div className="flex items-center justify-between px-3 py-3">
+      <div className="md:hidden sticky top-0 z-40 p-3">
+        <div className="flex items-center justify-between rounded-md bg-blue-600 px-4 py-3 ">
           <Link href="/" className="flex items-center">
-            <div className="w-32 text-blue-600">
+            <div className="w-28 text-white">
               <AcmeLogo />
             </div>
           </Link>
@@ -32,7 +31,7 @@ export default function SideNav() {
             type="button"
             aria-label="Abrir menú"
             onClick={() => setOpen(true)}
-            className="inline-flex items-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            className="inline-flex items-center rounded-lg p-2 text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"
           >
             <Bars3Icon className="h-6 w-6" />
           </button>
@@ -61,29 +60,31 @@ export default function SideNav() {
           )}
           aria-label="Sidebar"
         >
-          {/* Encabezado del drawer */}
-          <div className="relative flex h-20 items-end justify-start bg-blue-600 p-4">
-            <div className="w-32 text-white">
-              <AcmeLogo />
+          <div className="flex h-full flex-col">
+            {/* Encabezado del drawer (sin logo) */}
+            <div className="flex h-14 items-center justify-between border-b px-4">
+              <span className="text-base font-semibold text-gray-900">
+                Menu
+              </span>
+              <button
+                type="button"
+                aria-label="Cerrar menú"
+                onClick={() => setOpen(false)}
+                className="inline-flex items-center rounded-full p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
             </div>
-            <button
-              type="button"
-              aria-label="Cerrar menú"
-              onClick={() => setOpen(false)}
-              className="absolute right-3 top-3 inline-flex items-center rounded-full p-2 text-white/90 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"
-            >
-              <XMarkIcon className="h-5 w-5" />
-            </button>
-          </div>
 
-          {/* Contenido del drawer */}
-          <div className="h-[calc(100%-5rem)] overflow-y-auto px-3 py-4 space-y-2">
-            <NavLinks showTextOnAllSizes onNavigate={() => setOpen(false)} />
-            <div className="h-px bg-gray-200 my-2" />
-            <ConfirmLogoutButton
-              closeSession={signOutHandler}
-              iconOnly={false}
-            />
+            {/* Contenido scrollable */}
+            <div className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
+              <NavLinks showTextOnAllSizes onNavigate={() => setOpen(false)} />
+            </div>
+
+            {/* Footer con Sign Out */}
+            <div className="border-t px-3 py-3">
+              <ConfirmLogoutButton closeSession={signOutHandler} />
+            </div>
           </div>
         </aside>
       </div>
