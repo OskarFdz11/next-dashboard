@@ -6,16 +6,10 @@ import Link from "next/link";
 import NavLinks from "@/app/ui/dashboard/nav-links";
 import AcmeLogo from "@/app/ui/acme-logo";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { signOut } from "@/auth";
 import ConfirmLogoutButton from "../confirm-logout-button";
 
 export default function SideNav() {
   const [open, setOpen] = useState(false);
-
-  // Server Action para logout (usado por ConfirmLogoutButton)
-  const signOutHandler = async () => {
-    await signOut({ redirectTo: "/" });
-  };
 
   return (
     <>
@@ -63,7 +57,7 @@ export default function SideNav() {
           <div className="flex h-full flex-col">
             {/* Encabezado del drawer (sin logo) */}
             <div className="flex h-14 items-center justify-between border-b px-4">
-              <span className="text-base font-semibold text-gray-900">
+              <span className=" text-sm font-medium transition-colors">
                 Menu
               </span>
               <button
@@ -83,7 +77,7 @@ export default function SideNav() {
 
             {/* Footer con Sign Out */}
             <div className="border-t px-3 py-3">
-              <ConfirmLogoutButton closeSession={signOutHandler} />
+              <ConfirmLogoutButton />
             </div>
           </div>
         </aside>
@@ -103,7 +97,7 @@ export default function SideNav() {
         <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
           <NavLinks showTextOnAllSizes />
           <div className="hidden h-auto w-full grow rounded-md bg-gray-50 md:block" />
-          <ConfirmLogoutButton closeSession={signOutHandler} iconOnly={false} />
+          <ConfirmLogoutButton />
         </div>
       </aside>
     </>

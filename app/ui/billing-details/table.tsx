@@ -168,7 +168,7 @@ export default async function BillingDetailsTable({
                           <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
                             {billing.company}
                           </td>
-                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm font-mono text-xs">
+                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm font-mono">
                             {billing.rfc}
                           </td>
                           <td className="whitespace-nowrap bg-white px-4 py-5 text-sm text-blue-600">
@@ -182,12 +182,12 @@ export default async function BillingDetailsTable({
                               <span className="text-gray-400">-</span>
                             )}
                           </td>
-                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm font-mono text-xs">
+                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm font-mono ">
                             {billing.clabe || (
                               <span className="text-gray-400">-</span>
                             )}
                           </td>
-                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm font-mono text-xs">
+                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm font-mono ">
                             {billing.checkAccount || (
                               <span className="text-gray-400">-</span>
                             )}

@@ -3,6 +3,8 @@
 import { z } from "zod";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
+import { signOut } from "@/auth";
+import { redirect } from "next/navigation";
 
 const CredentialsSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -46,5 +48,17 @@ export const authenticate = async (
       }
     }
     throw e;
+  }
+};
+
+export const logout = async (): Promise<
+  { ok: true; redirectTo: string } | { ok: false; error: string }
+> => {
+  try {
+    await signOut({ redirect: false });
+    return { ok: true, redirectTo: "/login" };
+  } catch (error) {
+    console.error("Error during logout:", error);
+    return { ok: false, error: "Logout failed" };
   }
 };
