@@ -1,10 +1,12 @@
 import type { Config } from 'tailwindcss';
+const flowbiteReact = require("flowbite-react/plugin/tailwindcss");
 
 const config: Config = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
+    ".flowbite-react\\class-list.json"
   ],
   theme: {
     extend: {
@@ -27,6 +29,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require('@tailwindcss/forms')],
+  plugins: [require('@tailwindcss/forms'), flowbiteReact],
 };
 export default config;

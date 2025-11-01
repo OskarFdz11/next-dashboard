@@ -8,14 +8,15 @@ import {
   TagIcon,
   BanknotesIcon,
 } from "@heroicons/react/24/outline";
-
 import Link from "next/link";
-
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 
-// Map of links to display in the side navigation.
-// Depending on the size of the application, this would be stored in a database.
+type NavLinksProps = {
+  showTextOnAllSizes?: boolean; // ← muestra el texto también en mobile (para el drawer)
+  onNavigate?: () => void; // ← cierra el drawer al hacer click
+};
+
 const links = [
   { name: "Home", href: "/dashboard", icon: HomeIcon },
   {
@@ -24,7 +25,6 @@ const links = [
     icon: DocumentDuplicateIcon,
   },
   { name: "Customers", href: "/dashboard/customers", icon: UserGroupIcon },
-
   {
     name: "Products",
     href: "/dashboard/products",
@@ -38,25 +38,41 @@ const links = [
   },
 ];
 
-export default function NavLinks() {
+export default function NavLinks({
+  showTextOnAllSizes = false,
+  onNavigate,
+}: NavLinksProps) {
   const pathname = usePathname();
+
   return (
     <>
       {links.map((link) => {
         const LinkIcon = link.icon;
+        const active = pathname === link.href;
+
+        const baseClasses = clsx(
+          "flex h-[48px] items-center gap-2 rounded-md text-sm font-medium transition-colors",
+          active
+            ? "bg-sky-100 text-blue-600"
+            : "bg-gray-50 hover:bg-sky-100 hover:text-blue-600",
+          showTextOnAllSizes
+            ? "w-full justify-start px-3"
+            : "grow justify-center p-3 md:justify-start md:p-2 md:px-3"
+        );
+
         return (
           <Link
             key={link.name}
             href={link.href}
-            className={clsx(
-              "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3",
-              {
-                "bg-sky-100 text-blue-600": pathname === link.href,
-              }
-            )}
+            onClick={onNavigate}
+            className={baseClasses}
           >
             <LinkIcon className="w-6" />
-            <p className="hidden md:block">{link.name}</p>
+            <p
+              className={clsx(showTextOnAllSizes ? "block" : "hidden md:block")}
+            >
+              {link.name}
+            </p>
           </Link>
         );
       })}
