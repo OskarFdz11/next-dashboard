@@ -1,11 +1,20 @@
-import { Revenue } from "./definitions";
-
 // export const formatCurrency = (amount: number) => {
 //   return amount.toLocaleString("en-US", {
 //     style: "currency",
 //     currency: "USD",
 //   });
 // };
+
+export function applyPersistedToFormData(
+  fd: FormData,
+  data: Record<string, any>
+) {
+  for (const [k, v] of Object.entries(data)) {
+    if (v === undefined || v === null) continue;
+    // Si no es string, lo guardamos como JSON (útil para arrays/objetos)
+    fd.set(k, typeof v === "string" ? v : JSON.stringify(v));
+  }
+}
 
 export const formatCurrency = (amount: number): string => {
   // Validar que amount sea un número válido

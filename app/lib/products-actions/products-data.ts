@@ -35,7 +35,7 @@ export async function fetchProducts() {
 
 export async function fetchProductById(id: string) {
   try {
-    const product = await prisma.product.findUnique({
+    const product = await prisma.product.findFirst({
       where: { id: Number(id), deleted_at: null },
       select: {
         id: true,
@@ -87,7 +87,7 @@ export async function fetchFilteredProducts(
         include: {
           category: true,
         },
-        orderBy: { name: "asc" },
+        orderBy: { id: "asc" },
         skip: (currentPage - 1) * ITEMS_PER_PAGE,
         take: ITEMS_PER_PAGE,
       }),

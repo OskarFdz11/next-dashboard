@@ -2,14 +2,14 @@ import Breadcrumbs from "@/app/ui/quotations/breadcrumbs";
 
 import { Metadata } from "next";
 import CreateBillingDetailsForm from "@/app/ui/billing-details/create-billing-details-form";
-import { fetchBillingDetails } from "@/app/lib/billing-details-actions/billing-details-data";
+import { fetchBillingDetailsField } from "@/app/lib/billing-details-actions/billing-details-data";
 
 export const metadata: Metadata = {
   title: "Create Billing Details",
 };
 
 export default async function Page() {
-  const billingDetails = await fetchBillingDetails();
+  const billingDetails = await fetchBillingDetailsField();
 
   return (
     <main>

@@ -1,6 +1,12 @@
 "use client";
 
-import { useActionState, useState, useEffect, useRef } from "react";
+import {
+  useActionState,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import { useRouter } from "next/navigation";
 import {
   CustomerField,
@@ -24,6 +30,8 @@ import {
   createQuotation,
   State,
 } from "@/app/lib/quotations-actions/quotations-actions";
+import { useFormPersistence } from "@/app/hooks/useFormPersisence";
+import { applyPersistedToFormData } from "@/app/lib/utils";
 
 type QuotationProduct = {
   productId: string;
@@ -52,16 +60,59 @@ export default function CreateQuotationForm({
   ]);
   const [iva, setIva] = useState(false);
 
+  const {
+    data: persisted,
+    updateData,
+    clearData,
+    isLoaded,
+  } = useFormPersistence<{
+    customerId: string;
+    billingDetailsId: string;
+    notes: string;
+    status: string;
+    iva: boolean;
+    productsJSON: string; // guardamos arreglo como JSON
+  }>("create-quotation-form", {
+    customerId: "",
+    billingDetailsId: "",
+    iva: false,
+    notes: "",
+    status: "pending",
+    productsJSON: "[]",
+  });
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    try {
+      const parsed = JSON.parse(persisted.productsJSON || "[]");
+      if (Array.isArray(parsed) && parsed.length) setSelectedProducts(parsed);
+      setIva(!!persisted.iva);
+    } catch {}
+  }, [isLoaded, persisted.productsJSON, persisted.iva]);
+
+  const clearCompleteForm = useCallback(() => {
+    clearData();
+    setSelectedProducts([{ productId: "", quantity: 1, price: 0 }]);
+    setIva(false);
+  }, [clearData]);
+
+  useEffect(() => {
+    updateData({ productsJSON: JSON.stringify(selectedProducts) });
+  }, [selectedProducts, updateData]);
+  useEffect(() => {
+    updateData({ iva });
+  }, [iva, updateData]);
+
   useEffect(() => {
     if (state.success) {
       // Ideal: que la acción devuelva quotationId
-      const id = state.quotationId;
-      const label = id ? `#${id}` : "";
+      const label = state.quotationId ? `#${state.quotationId}` : "";
+      clearCompleteForm();
       router.replace(
         `/dashboard/quotations?created=${encodeURIComponent(label)}`
       );
     }
-  }, [state.success, router]);
+  }, [state.success, state.quotationId, router, clearCompleteForm]);
 
   const addProduct = () => {
     setSelectedProducts([
@@ -113,9 +164,24 @@ export default function CreateQuotationForm({
     return iva ? subtotal * 1.16 : subtotal;
   };
 
+  const handleSubmit = async (fd: FormData) => {
+    // aseguramos que los datos actuales están en persisted
+    updateData({
+      productsJSON: JSON.stringify(selectedProducts),
+      iva,
+      notes: persisted.notes,
+      status: persisted.status,
+    });
+    // volcamos todo lo persistido al FormData
+    applyPersistedToFormData(fd, persisted);
+    await formAction(fd);
+  };
+
+  if (!isLoaded) return null;
+
   return (
     <>
-      <form action={formAction}>
+      <form action={handleSubmit}>
         <div className="rounded-md bg-gray-50 p-4 md:p-6">
           {/* Customer Selection */}
           <div className="mb-4">
@@ -130,7 +196,8 @@ export default function CreateQuotationForm({
                 id="customer"
                 name="customerId"
                 className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                defaultValue=""
+                value={persisted.customerId}
+                onChange={(e) => updateData({ customerId: e.target.value })}
                 aria-describedby="customer-error"
               >
                 <option value="" disabled>
@@ -167,8 +234,11 @@ export default function CreateQuotationForm({
               <select
                 id="billingDetails"
                 name="billingDetailsId"
+                value={persisted.billingDetailsId}
+                onChange={(e) =>
+                  updateData({ billingDetailsId: e.target.value })
+                }
                 className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                defaultValue=""
               >
                 <option value="" disabled>
                   Select billing details
@@ -321,7 +391,7 @@ export default function CreateQuotationForm({
                 htmlFor="iva"
                 className="ml-2 cursor-pointer text-sm font-medium"
               >
-                Include IVA (16%)
+                Es más IVA? (16%)
               </label>
             </div>
           </div>
@@ -356,6 +426,7 @@ export default function CreateQuotationForm({
               Notes (optional)
             </label>
             <textarea
+              onChange={(e) => updateData({ notes: e.target.value })}
               id="notes"
               name="notes"
               rows={3}
@@ -384,7 +455,7 @@ export default function CreateQuotationForm({
                     htmlFor="pending"
                     className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
                   >
-                    Pending <ClockIcon className="h-4 w-4" />
+                    Pendiente <ClockIcon className="h-4 w-4" />
                   </label>
                 </div>
                 <div className="flex items-center">
@@ -399,7 +470,8 @@ export default function CreateQuotationForm({
                     htmlFor="paid"
                     className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-medium text-white"
                   >
-                    Paid <CheckIcon className="h-4 w-4" />
+                    Pagado
+                    <CheckIcon className="h-4 w-4" />
                   </label>
                 </div>
               </div>

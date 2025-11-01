@@ -18,6 +18,7 @@ export type BillingDetailsEditFormProps = {
     rfc: string;
     clabe: string;
     checkAccount: string;
+    cardNumber: string;
     phone: string | null;
     email: string;
     address: {
@@ -228,6 +229,7 @@ export default function EditBillingDetailsForm({
               id="cardNumber"
               name="cardNumber"
               type="text"
+              defaultValue={billingDetails.cardNumber}
               placeholder="Enter Card Number"
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
             />

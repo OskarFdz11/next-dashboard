@@ -17,7 +17,7 @@ export async function fetchCustomers() {
         phone: true,
         company: true,
       },
-      orderBy: { name: "asc" },
+      orderBy: { id: "desc" },
     });
     return customers.map((customer) => ({
       ...customer,
@@ -66,7 +66,7 @@ export async function fetchFilteredCustomers(
         include: {
           quotations: true,
         },
-        orderBy: { name: "asc" },
+        orderBy: { id: "desc" },
         skip: (currentPage - 1) * ITEMS_PER_PAGE,
         take: ITEMS_PER_PAGE,
       }),

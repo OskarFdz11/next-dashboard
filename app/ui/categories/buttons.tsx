@@ -14,13 +14,29 @@ export function CreateCategory() {
   );
 }
 
-export function UpdateCategory({ id }: { id: number | string }) {
+export function UpdateCategory({
+  id,
+  variant = "default",
+}: {
+  id: number;
+  variant?: "default" | "icon";
+}) {
+  const base =
+    "inline-flex items-center justify-center rounded-md transition-colors";
+  const iconClasses =
+    "h-10 w-10 border border-gray-200 text-gray-600 hover:bg-gray-100";
+  const defaultClasses =
+    "px-3 py-2 border border-gray-200 text-gray-700 hover:bg-gray-100";
+
   return (
     <Link
       href={`/dashboard/categories/${id}/edit`}
-      className="rounded-md border p-2 hover:bg-gray-100"
+      className={`${base} ${variant === "icon" ? iconClasses : defaultClasses}`}
+      title="Editar categoría"
+      aria-label="Editar categoría"
     >
-      <PencilIcon className="w-5" />
+      <PencilIcon className={variant === "icon" ? "h-5 w-5" : "h-4 w-4 mr-2"} />
+      {variant === "default" && <span>Editar</span>}
     </Link>
   );
 }

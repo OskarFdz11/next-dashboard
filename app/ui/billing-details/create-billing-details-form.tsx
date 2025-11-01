@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
 import {
@@ -9,6 +9,8 @@ import {
 } from "@/app/lib/billing-details-actions/billing-details-actions";
 import { BillingDetailsField } from "@/app/lib/definitions";
 import { useRouter } from "next/navigation";
+import { useFormPersistence } from "@/app/hooks/useFormPersisence";
+import { applyPersistedToFormData } from "@/app/lib/utils";
 
 export default function CreateBillingDetailsForm({
   billingDetails,
@@ -26,21 +28,70 @@ export default function CreateBillingDetailsForm({
     initialState
   );
 
+  const {
+    data: formData,
+    updateData,
+    clearData,
+    isLoaded,
+  } = useFormPersistence<{
+    name: string;
+    lastname: string;
+    email: string;
+    company: string;
+    rfc: string;
+    phone: string;
+    cardNumber: string;
+    clabe: string;
+    checkAccount: string;
+    street: string;
+    outsideNumber: string;
+    colony: string;
+    city: string;
+    cp: string;
+  }>("create-customer-form", {
+    name: "",
+    lastname: "",
+    email: "",
+    company: "",
+    rfc: "",
+    phone: "",
+    cardNumber: "",
+    clabe: "",
+    checkAccount: "",
+    street: "",
+    outsideNumber: "",
+    colony: "",
+    city: "",
+    cp: "",
+  });
+
   const nameRef = useRef<HTMLInputElement>(null);
+  const lastNameRef = useRef<HTMLInputElement>(null);
+
+  const clearCompleteForm = useCallback(() => {
+    clearData();
+  }, [clearData]);
 
   useEffect(() => {
     if (state.success) {
       const currentName =
         nameRef.current?.value || billingDetails[0]?.name || "";
-
+      clearCompleteForm();
       router.replace(
         `/dashboard/billing-details?created=${encodeURIComponent(currentName)}`
       );
     }
   }, [state.success, router, billingDetails[0]?.name]);
 
+  const handleSubmit = async (fd: FormData) => {
+    applyPersistedToFormData(fd, formData);
+    await formAction(fd);
+  };
+
+  if (!isLoaded) return null;
+
   return (
-    <form action={formAction}>
+    <form action={handleSubmit}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Personal Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -54,6 +105,8 @@ export default function CreateBillingDetailsForm({
               id="name"
               name="name"
               type="text"
+              value={formData.name}
+              onChange={(e) => updateData({ name: e.target.value })}
               placeholder="Enter name"
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
             />
@@ -76,10 +129,12 @@ export default function CreateBillingDetailsForm({
               Last Name
             </label>
             <input
-              ref={nameRef}
+              ref={lastNameRef}
               id="lastname"
               name="lastname"
               type="text"
+              value={formData.lastname}
+              onChange={(e) => updateData({ lastname: e.target.value })}
               placeholder="Enter last name"
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
             />
@@ -105,6 +160,8 @@ export default function CreateBillingDetailsForm({
               id="company"
               name="company"
               type="text"
+              value={formData.company}
+              onChange={(e) => updateData({ company: e.target.value })}
               placeholder="Enter company name"
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
             />
@@ -127,6 +184,8 @@ export default function CreateBillingDetailsForm({
               id="rfc"
               name="rfc"
               type="text"
+              value={formData.rfc}
+              onChange={(e) => updateData({ rfc: e.target.value })}
               placeholder="Enter RFC"
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
             />
@@ -152,6 +211,8 @@ export default function CreateBillingDetailsForm({
               id="email"
               name="email"
               type="email"
+              value={formData.email}
+              onChange={(e) => updateData({ email: e.target.value })}
               placeholder="Enter email"
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
             />
@@ -174,6 +235,8 @@ export default function CreateBillingDetailsForm({
               id="phone"
               name="phone"
               type="tel"
+              value={formData.phone}
+              onChange={(e) => updateData({ phone: e.target.value })}
               placeholder="Enter phone number"
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
             />
@@ -202,6 +265,8 @@ export default function CreateBillingDetailsForm({
             <input
               id="cardNumber"
               name="cardNumber"
+              value={formData.cardNumber}
+              onChange={(e) => updateData({ cardNumber: e.target.value })}
               type="text"
               placeholder="Enter Card Number"
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
@@ -223,6 +288,8 @@ export default function CreateBillingDetailsForm({
             <input
               id="clabe"
               name="clabe"
+              value={formData.clabe}
+              onChange={(e) => updateData({ clabe: e.target.value })}
               type="text"
               placeholder="Enter CLABE"
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
@@ -248,6 +315,8 @@ export default function CreateBillingDetailsForm({
             <input
               id="checkAccount"
               name="checkAccount"
+              value={formData.checkAccount}
+              onChange={(e) => updateData({ checkAccount: e.target.value })}
               type="text"
               placeholder="Enter check account"
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
@@ -280,6 +349,8 @@ export default function CreateBillingDetailsForm({
               </label>
               <input
                 id="street"
+                value={formData.street}
+                onChange={(e) => updateData({ street: e.target.value })}
                 name="street"
                 type="text"
                 placeholder="Enter street"
@@ -305,6 +376,8 @@ export default function CreateBillingDetailsForm({
               </label>
               <input
                 id="outsideNumber"
+                value={formData.outsideNumber}
+                onChange={(e) => updateData({ outsideNumber: e.target.value })}
                 name="outsideNumber"
                 type="text"
                 placeholder="Enter outside number"
@@ -337,6 +410,8 @@ export default function CreateBillingDetailsForm({
               <input
                 id="colony"
                 name="colony"
+                value={formData.colony}
+                onChange={(e) => updateData({ colony: e.target.value })}
                 type="text"
                 placeholder="Enter colony"
                 className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
@@ -359,6 +434,8 @@ export default function CreateBillingDetailsForm({
               <input
                 id="city"
                 name="city"
+                value={formData.city}
+                onChange={(e) => updateData({ city: e.target.value })}
                 type="text"
                 placeholder="Enter city"
                 className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
@@ -381,6 +458,8 @@ export default function CreateBillingDetailsForm({
               <input
                 id="cp"
                 name="cp"
+                value={formData.cp}
+                onChange={(e) => updateData({ cp: e.target.value })}
                 type="text"
                 placeholder="Enter postal code"
                 className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"

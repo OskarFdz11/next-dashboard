@@ -54,25 +54,40 @@ export default async function CategoriesTable({
                     {categories.map((category) => (
                       <div
                         key={category.id}
-                        className="mb-2 w-full rounded-md bg-white p-4"
+                        className="mb-2 w-full rounded-md bg-white p-4 border border-gray-200 shadow-sm"
                       >
-                        <div className="flex items-center justify-between border-b pb-4">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 truncate">
-                              {category.name}
-                            </p>
-                            <p className="text-sm text-gray-500 mt-1 break-words">
-                              {category.description}
-                            </p>
-                          </div>
-                          <div className="flex flex-col gap-2 ml-4 flex-shrink-0">
-                            <UpdateCategory id={category.id} />
-                            <ConfirmDeleteButton
-                              itemId={category.id}
-                              deleteAction={deleteCategory}
-                              entityName="categoría"
-                              itemName={category.name}
-                            />
+                        {/* Encabezado */}
+                        <div className="pb-3 border-b border-gray-200">
+                          <p className="text-sm">
+                            <span className="font-semibold text-blue-600">
+                              #{category.id}
+                            </span>
+                          </p>
+                        </div>
+                        {/* Información */}
+                        <div className="space-y-2">
+                          <p className="font-medium text-gray-900">
+                            {category.name}
+                          </p>
+                          <p className="text-sm text-gray-500 break-words">
+                            {category.description}
+                          </p>
+                        </div>
+
+                        {/* Acciones abajo con separador */}
+                        <div className="mt-4 border-t border-gray-200 pt-3">
+                          <div className="flex items-center justify-end gap-2">
+                            <div className="h-10 w-10 inline-flex items-center justify-center">
+                              <UpdateCategory id={category.id} variant="icon" />
+                            </div>
+                            <div className="h-10 w-10 inline-flex items-center justify-center">
+                              <ConfirmDeleteButton
+                                itemId={category.id}
+                                deleteAction={deleteCategory}
+                                entityName="categoría"
+                                itemName={category.name}
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -83,11 +98,17 @@ export default async function CategoriesTable({
                   <table className="hidden min-w-full rounded-md text-gray-900 md:table">
                     <thead className="rounded-md bg-gray-50 text-left text-sm font-normal">
                       <tr>
+                        <th
+                          scope="col"
+                          className="px-6 py-5 font-medium min-w-[80px]"
+                        >
+                          ID
+                        </th>
                         <th className="px-4 py-5 font-medium sm:pl-6">
                           Nombre
                         </th>
                         <th className="px-3 py-5 font-medium">Descripción</th>
-                        <th className="py-3 pl-6 pr-3 text-right font-medium">
+                        <th className="px-3 py-5 font-medium text-right">
                           Acciones
                         </th>
                       </tr>
@@ -98,6 +119,11 @@ export default async function CategoriesTable({
                           key={category.id}
                           className="group hover:bg-gray-50"
                         >
+                          <td className="whitespace-nowrap bg-white py-5   text-sm font-medium sm:pl-6">
+                            <span className="font-semibold text-blue-600">
+                              #{category.id}
+                            </span>
+                          </td>
                           <td className="whitespace-nowrap bg-white py-5 pl-4 pr-3 text-sm font-medium sm:pl-6">
                             {category.name}
                           </td>

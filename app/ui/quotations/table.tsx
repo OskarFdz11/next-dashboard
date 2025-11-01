@@ -57,12 +57,17 @@ export default async function QuotationsTable({
                     key={quotation.id}
                     className="w-full rounded-lg bg-white p-4 shadow-sm border border-gray-200"
                   >
-                    {/* ID, Cliente y Estado en la misma línea */}
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="font-semibold text-gray-900 text-lg leading-tight">
-                        <span className="text-blue-600 font-bold">
+                    {/* Encabezado */}
+                    <div className="pb-3 border-b border-gray-200">
+                      <p className="text-sm">
+                        <span className="font-semibold text-blue-600">
                           #{quotation.id}
-                        </span>{" "}
+                        </span>
+                      </p>
+                    </div>
+                    {/* ID, Cliente y Estado en la misma línea */}
+                    <div className="flex items-center justify-between mb-3 mt-2">
+                      <p className="font-semibold text-gray-900 text-lg leading-tight">
                         {quotation.customer.name} {quotation.customer.lastname}
                       </p>
                       <QuotationStatus status={quotation.status} />
@@ -205,11 +210,8 @@ export default async function QuotationsTable({
                       >
                         Estado
                       </th>
-                      <th
-                        scope="col"
-                        className="relative py-3 pl-6 pr-3 min-w-[140px]"
-                      >
-                        <span className="sr-only">Acciones</span>
+                      <th className="px-3 py-5 font-medium text-left min-w-[120px]">
+                        Acciones
                       </th>
                     </tr>
                   </thead>
@@ -265,7 +267,7 @@ export default async function QuotationsTable({
                         <td className="whitespace-nowrap px-3 py-3">
                           <QuotationStatus status={quotation.status} />
                         </td>
-                        <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                        <td className="whitespace-nowrap py-3 ">
                           <div className="flex items-center gap-2">
                             <DownloadPDFButton
                               quotationId={quotation.id}

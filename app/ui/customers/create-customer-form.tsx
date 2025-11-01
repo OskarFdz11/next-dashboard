@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
 import {
@@ -9,6 +9,8 @@ import {
 } from "@/app/lib/customer-actions/customer-actions";
 import { CustomerField } from "@/app/lib/definitions";
 import { useRouter } from "next/navigation";
+import { useFormPersistence } from "@/app/hooks/useFormPersisence";
+import { applyPersistedToFormData } from "@/app/lib/utils";
 
 export default function CreateCustomerForm({
   customers,
@@ -26,20 +28,54 @@ export default function CreateCustomerForm({
     initialState
   );
 
+  const {
+    data: formData,
+    updateData,
+    clearData,
+    isLoaded,
+  } = useFormPersistence<{
+    name: string;
+    lastname: string;
+    email: string;
+    company: string;
+    rfc: string;
+    phone: string;
+  }>("create-customer-form", {
+    name: "",
+    lastname: "",
+    email: "",
+    company: "",
+    rfc: "",
+    phone: "",
+  });
+
+  const clearCompleteForm = useCallback(() => {
+    clearData();
+  }, [clearData]);
+
   const nameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (state.success) {
       const currentName = nameRef.current?.value || customers[0]?.name || "";
       // Redirige a la lista con el flag de "created"
+
       router.replace(
         `/dashboard/customers?created=${encodeURIComponent(currentName)}`
       );
+      clearCompleteForm();
     }
   }, [state.success, router, customers]);
 
+  const handleSubmit = async (fd: FormData) => {
+    applyPersistedToFormData(fd, formData);
+    await formAction(fd);
+  };
+
+  if (!isLoaded) return null;
+
   return (
-    <form action={formAction}>
+    <form action={handleSubmit}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Name */}
         <div className="mb-4">
@@ -52,6 +88,8 @@ export default function CreateCustomerForm({
             name="name"
             type="text"
             placeholder="Enter first name"
+            value={formData.name}
+            onChange={(e) => updateData({ name: e.target.value })}
             className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
           />
           <div id="name-error" aria-live="polite" aria-atomic="true">
@@ -73,6 +111,8 @@ export default function CreateCustomerForm({
             id="lastname"
             name="lastname"
             type="text"
+            value={formData.lastname}
+            onChange={(e) => updateData({ lastname: e.target.value })}
             placeholder="Enter last name"
             className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
           />
@@ -95,6 +135,8 @@ export default function CreateCustomerForm({
             id="email"
             name="email"
             type="email"
+            value={formData.email}
+            onChange={(e) => updateData({ email: e.target.value })}
             placeholder="Enter email"
             className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
           />
@@ -118,6 +160,8 @@ export default function CreateCustomerForm({
             name="company"
             type="text"
             placeholder="Enter company"
+            value={formData.company}
+            onChange={(e) => updateData({ company: e.target.value })}
             className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
           />
           <div id="company-error" aria-live="polite" aria-atomic="true">
@@ -140,6 +184,8 @@ export default function CreateCustomerForm({
             name="rfc"
             type="text"
             placeholder="Enter RFC"
+            value={formData.rfc}
+            onChange={(e) => updateData({ rfc: e.target.value })}
             className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
           />
           <div id="rfc-error" aria-live="polite" aria-atomic="true">
@@ -161,6 +207,8 @@ export default function CreateCustomerForm({
             id="phone"
             name="phone"
             type="tel"
+            value={formData.phone}
+            onChange={(e) => updateData({ phone: e.target.value })}
             placeholder="Enter phone number"
             className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
           />

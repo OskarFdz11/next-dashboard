@@ -53,27 +53,21 @@ export default async function CustomersTable({
                 {customers.map((customer) => (
                   <div
                     key={customer.id}
-                    className="w-full rounded-lg bg-white p-4 shadow-sm border border-gray-200 relative"
+                    className="w-full rounded-lg bg-white p-4 shadow-sm border border-gray-200"
                   >
-                    {/* Botones centrados a la derecha */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col gap-2">
-                      <UpdateCustomer id={customer.id} />
-                      <ConfirmDeleteButton
-                        itemId={customer.id}
-                        deleteAction={deleteCustomer}
-                        entityName="cliente"
-                        itemName={`${customer.name} ${customer.lastname}`}
-                      />
+                    {/* Encabezado */}
+                    <div className="pb-3 border-b border-gray-200">
+                      <p className="text-sm">
+                        <span className="font-semibold text-blue-600">
+                          #{customer.id}
+                        </span>
+                      </p>
                     </div>
-
-                    {/* Información principal - con espacio para botones */}
-                    <div className="pr-20 space-y-3">
+                    {/* Información principal */}
+                    <div className="space-y-3 mt-3">
                       {/* Nombre con ID */}
-                      <div className="pb-2">
+                      <div className="pb-2 ">
                         <p className="font-semibold text-gray-900 text-lg leading-tight">
-                          <span className="text-blue-600 font-bold">
-                            #{customer.id}
-                          </span>{" "}
                           {customer.name} {customer.lastname}
                         </p>
                       </div>
@@ -106,7 +100,7 @@ export default async function CustomersTable({
                               {customer.rfc}
                             </p>
                           </div>
-                          <div>
+                          <div className="text-right">
                             <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
                               Teléfono
                             </p>
@@ -114,6 +108,23 @@ export default async function CustomersTable({
                               {customer.phone}
                             </p>
                           </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Acciones abajo con separador */}
+                    <div className="mt-4 border-t border-gray-200 pt-3">
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="h-10 w-10 inline-flex items-center justify-center">
+                          <UpdateCustomer id={customer.id} variant="icon" />
+                        </div>
+                        <div className="h-10 w-10 inline-flex items-center justify-center">
+                          <ConfirmDeleteButton
+                            itemId={customer.id}
+                            deleteAction={deleteCustomer}
+                            entityName="cliente"
+                            itemName={`${customer.name} ${customer.lastname}`}
+                          />
                         </div>
                       </div>
                     </div>
@@ -168,11 +179,8 @@ export default async function CustomersTable({
                       >
                         Teléfono
                       </th>
-                      <th
-                        scope="col"
-                        className="relative py-3 pl-6 pr-3 min-w-[140px]"
-                      >
-                        <span className="sr-only">Acciones</span>
+                      <th className="px-3 py-5 font-medium text-left min-w-[120px]">
+                        Acciones
                       </th>
                     </tr>
                   </thead>
@@ -213,7 +221,7 @@ export default async function CustomersTable({
                         <td className="whitespace-nowrap px-3 py-3 hidden xl:table-cell">
                           <p className="text-gray-700">{customer.phone}</p>
                         </td>
-                        <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                        <td className="whitespace-nowrap py-3 px-3">
                           <div className="flex items-center gap-2">
                             <UpdateCustomer id={customer.id} />
                             <ConfirmDeleteButton

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
 import {
@@ -9,6 +9,8 @@ import {
 } from "@/app/lib/categories-actions/categories-actions";
 import { CategoryField } from "@/app/lib/definitions";
 import { useRouter } from "next/navigation";
+import { useFormPersistence } from "@/app/hooks/useFormPersisence";
+import { applyPersistedToFormData } from "@/app/lib/utils";
 
 export default function CreateCategoryForm({
   categories,
@@ -24,18 +26,43 @@ export default function CreateCategoryForm({
   const [state, formAction] = useActionState(createCategory, initialState);
   const nameRef = useRef<HTMLInputElement>(null);
 
+  const {
+    data: formData,
+    updateData,
+    clearData,
+    isLoaded,
+  } = useFormPersistence<{
+    name: string;
+    description: string;
+  }>("create-customer-form", {
+    name: "",
+    description: "",
+  });
+
+  const clearCompleteForm = useCallback(() => {
+    clearData();
+  }, [clearData]);
+
   useEffect(() => {
     if (state.success) {
       const currentName = nameRef.current?.value || categories[0]?.name || "";
       // Redirige a la lista con el flag de "created"
+      clearCompleteForm();
       router.replace(
         `/dashboard/categories?created=${encodeURIComponent(currentName)}`
       );
     }
   }, [state.success, router, categories]);
 
+  const handleSubmit = async (fd: FormData) => {
+    applyPersistedToFormData(fd, formData);
+    await formAction(fd);
+  };
+
+  if (!isLoaded) return null;
+
   return (
-    <form action={formAction}>
+    <form action={handleSubmit}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Name */}
         <div className="mb-4">
@@ -47,6 +74,8 @@ export default function CreateCategoryForm({
             id="name"
             name="name"
             type="text"
+            value={formData.name}
+            onChange={(e) => updateData({ name: e.target.value })}
             placeholder="Enter first name"
             className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
           />
@@ -72,6 +101,8 @@ export default function CreateCategoryForm({
             id="description"
             name="description"
             type="text"
+            value={formData.description}
+            onChange={(e) => updateData({ description: e.target.value })}
             placeholder="Enter description"
             className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
           />

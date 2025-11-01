@@ -54,46 +54,71 @@ export default async function BillingDetailsTable({
                     {billingDetails.map((billing) => (
                       <div
                         key={billing.id}
-                        className="mb-2 w-full rounded-md bg-white p-4"
+                        className="mb-2 w-full rounded-md bg-white p-4 border border-gray-200 shadow-sm"
                       >
-                        <div className="flex items-center justify-between border-b pb-4">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900">
-                              {billing.name} {billing.lastname}
+                        {/* Encabezado */}
+                        <div className="pb-3 border-b border-gray-200">
+                          <p className="text-sm">
+                            <span className="font-semibold text-blue-600">
+                              #{billing.id}
+                            </span>
+                          </p>
+                        </div>
+
+                        {/* Datos */}
+                        <div className="mt-3">
+                          <p className="font-medium text-gray-900">
+                            {billing.name} {billing.lastname}
+                          </p>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {billing.company}
+                          </p>
+
+                          <div className="mt-2 space-y-1">
+                            <p className="text-xs text-gray-500">
+                              RFC: {billing.rfc}
                             </p>
-                            <p className="text-sm text-gray-500 mt-1">
-                              {billing.company}
+                            <p className="text-xs text-gray-500">
+                              Email: {billing.email}
                             </p>
-                            <div className="mt-2 space-y-1">
+                            <p className="text-xs text-gray-500">
+                              Teléfono: {billing.phone}
+                            </p>
+                            {billing.cardNumber && (
                               <p className="text-xs text-gray-500">
-                                RFC: {billing.rfc}
+                                Número de tarjeta: {billing.cardNumber}
                               </p>
+                            )}
+                            {billing.clabe && (
                               <p className="text-xs text-gray-500">
-                                Email: {billing.email}
+                                CLABE: {billing.clabe}
                               </p>
+                            )}
+                            {billing.checkAccount && (
                               <p className="text-xs text-gray-500">
-                                Teléfono: {billing.phone}
+                                Cuenta de cheques: {billing.checkAccount}
                               </p>
-                              {billing.clabe && (
-                                <p className="text-xs text-gray-500">
-                                  CLABE: {billing.clabe}
-                                </p>
-                              )}
-                              {billing.checkAccount && (
-                                <p className="text-xs text-gray-500">
-                                  Cuenta: {billing.checkAccount}
-                                </p>
-                              )}
-                            </div>
+                            )}
                           </div>
-                          <div className="flex flex-col gap-2 ml-4 flex-shrink-0">
-                            <UpdateBillingDetails id={billing.id} />
-                            <ConfirmDeleteButton
-                              itemId={billing.id}
-                              deleteAction={deleteBillingDetails}
-                              entityName="detalle de facturación"
-                              itemName={`${billing.name} ${billing.lastname} - ${billing.company}`}
-                            />
+                        </div>
+
+                        {/* Acciones abajo con separador */}
+                        <div className="mt-4 border-t border-gray-200 pt-3">
+                          <div className="flex items-center justify-end gap-2">
+                            <div className="h-10 w-10 inline-flex items-center justify-center">
+                              <UpdateBillingDetails
+                                id={billing.id}
+                                variant="icon"
+                              />
+                            </div>
+                            <div className="h-10 w-10 inline-flex items-center justify-center">
+                              <ConfirmDeleteButton
+                                itemId={billing.id}
+                                deleteAction={deleteBillingDetails}
+                                entityName="detalle de facturación"
+                                itemName={`${billing.name} ${billing.lastname} - ${billing.company}`}
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -104,6 +129,7 @@ export default async function BillingDetailsTable({
                   <table className="hidden min-w-full rounded-md text-gray-900 md:table">
                     <thead className="rounded-md bg-gray-50 text-left text-sm font-normal">
                       <tr>
+                        <th className="px-4 py-5 font-medium sm:pl-6">ID</th>
                         <th className="px-4 py-5 font-medium sm:pl-6">
                           Nombre
                         </th>
@@ -112,8 +138,14 @@ export default async function BillingDetailsTable({
                         <th className="px-3 py-5 font-medium">RFC</th>
                         <th className="px-3 py-5 font-medium">Email</th>
                         <th className="px-3 py-5 font-medium">Teléfono</th>
+                        <th className="px-3 py-5 font-medium">
+                          Número de tarjeta
+                        </th>
                         <th className="px-3 py-5 font-medium">CLABE</th>
-                        <th className="px-3 py-5 font-medium">Cuenta</th>
+
+                        <th className="px-3 py-5 font-medium">
+                          Cuenta de cheques
+                        </th>
                         <th className="py-3 pl-6 pr-3 text-right font-medium">
                           Acciones
                         </th>
@@ -122,6 +154,11 @@ export default async function BillingDetailsTable({
                     <tbody className="divide-y divide-gray-200 text-gray-900">
                       {billingDetails.map((billing) => (
                         <tr key={billing.id} className="group hover:bg-gray-50">
+                          <td className="whitespace-nowrap bg-white py-5 pl-4 pr-3 text-sm font-medium sm:pl-6">
+                            <span className="font-semibold text-blue-600">
+                              #{billing.id}
+                            </span>
+                          </td>
                           <td className="whitespace-nowrap bg-white py-5 pl-4 pr-3 text-sm font-medium sm:pl-6">
                             {billing.name}
                           </td>
@@ -139,6 +176,11 @@ export default async function BillingDetailsTable({
                           </td>
                           <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
                             {billing.phone}
+                          </td>
+                          <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
+                            {billing.cardNumber || (
+                              <span className="text-gray-400">-</span>
+                            )}
                           </td>
                           <td className="whitespace-nowrap bg-white px-4 py-5 text-sm font-mono text-xs">
                             {billing.clabe || (

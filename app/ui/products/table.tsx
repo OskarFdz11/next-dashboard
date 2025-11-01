@@ -55,12 +55,17 @@ export default async function ProductsTable({
                     key={product.id}
                     className="w-full rounded-lg bg-white p-4 shadow-sm border border-gray-200"
                   >
-                    {/* ID y título en toda la línea superior */}
-                    <div className="mb-3">
-                      <p className="font-semibold text-gray-900 text-lg leading-tight">
-                        <span className="text-blue-600 font-bold">
+                    {/* Encabezado */}
+                    <div className="pb-3 border-b border-gray-200">
+                      <p className="text-sm">
+                        <span className="font-semibold text-blue-600">
                           #{product.id}
-                        </span>{" "}
+                        </span>
+                      </p>
+                    </div>
+                    {/* ID y título en toda la línea superior */}
+                    <div className="mb-3 mt-2">
+                      <p className="font-semibold text-gray-900 text-lg leading-tight">
                         {product.name}
                       </p>
                     </div>
@@ -179,11 +184,8 @@ export default async function ProductsTable({
                       >
                         Stock
                       </th>
-                      <th
-                        scope="col"
-                        className="relative py-3 pl-6 pr-3 min-w-[140px]"
-                      >
-                        <span className="sr-only">Acciones</span>
+                      <th className="px-3 py-5 font-medium text-left min-w-[120px]">
+                        Acciones
                       </th>
                     </tr>
                   </thead>
@@ -246,7 +248,7 @@ export default async function ProductsTable({
                             {product.quantity}
                           </span>
                         </td>
-                        <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                        <td className="whitespace-nowrap py-3 px-3">
                           <div className="flex items-center gap-2">
                             <UpdateProduct id={product.id} />
                             <ConfirmDeleteButton

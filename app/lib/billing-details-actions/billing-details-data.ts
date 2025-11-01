@@ -9,7 +9,7 @@ export async function fetchBillingDetails() {
     const billingDetails = await prisma.billingDetails.findMany({
       where: { deleted_at: null },
       include: {
-        address: true, // Incluir todos los campos de la dirección
+        address: true,
         quotations: {
           select: {
             id: true,
@@ -28,6 +28,13 @@ export async function fetchBillingDetails() {
     return billingDetails.map((detail) => ({
       ...detail,
       phone: detail.phone?.toString() || null,
+      quotations: detail.quotations.map((q) => ({
+        ...q,
+        total:
+          typeof q.total === "object" && "toNumber" in q.total
+            ? q.total.toNumber()
+            : Number(q.total),
+      })),
     }));
   } catch (err) {
     console.error("Database Error:", err);
@@ -59,6 +66,13 @@ export async function fetchBillingDetailById(id: string) {
     return {
       ...billingDetail,
       phone: billingDetail.phone?.toString() || null,
+      quotations: billingDetail.quotations.map((q) => ({
+        ...q,
+        total:
+          typeof q.total === "object" && "toNumber" in q.total
+            ? q.total.toNumber()
+            : Number(q.total),
+      })),
     };
   } catch (error) {
     console.error("Database Error:", error);
@@ -109,7 +123,7 @@ export async function fetchFilteredBillingDetails(
 
     const [billingDetails, totalCount] = await Promise.all([
       prisma.billingDetails.findMany({
-        where: whereCondition,
+        where: { ...whereCondition, deleted_at: null },
         include: {
           address: true,
           quotations: {
@@ -165,6 +179,7 @@ export async function fetchBillingDetailsField() {
         email: true,
         rfc: true,
         clabe: true,
+        cardNumber: true,
         checkAccount: true,
         phone: true,
       },
@@ -177,6 +192,7 @@ export async function fetchBillingDetailsField() {
       rfc: billing.rfc || "",
       clabe: billing.clabe || "",
       checkAccount: billing.checkAccount || "",
+      cardNumber: billing.cardNumber || "",
     }));
   } catch (error) {
     console.error("Database Error:", error);
